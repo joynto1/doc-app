@@ -25,7 +25,7 @@ function App() {
           <Navbar />
           <main className="main-content">
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/home" element={<Home />} />
               <Route path="/all-doctors" element={<AllDoctors />} />
               <Route path="/doctor/:doctorId" element={<DoctorProfile />} />
               <Route path="/about" element={<About />} />
