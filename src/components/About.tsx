@@ -4,24 +4,50 @@ import './About.css';
 const About: React.FC = () => {
   return (
     <div className="about-container">
-      <div className="about-image">
-        <img
-          src="https://th.bing.com/th/id/OIP.rTI9LLFSxWCGhZODMBvIowHaE7?cb=iwc2&rs=1&pid=ImgDetMain"
-          alt="Doctors"
-        />
-      </div>
       <div className="about-content">
-        <h2>ABOUT <span>US</span></h2>
-        <p>
-          Welcome to Doctor Appointment Portal, your trusted partner in managing your healthcare needs conveniently and efficiently. At Doctor Appointment Portal, we understand the challenges individuals face when it comes to scheduling doctor appointments and managing their health records.
-        </p>
-        <p>
-        Doctor Appointment Portal is committed to excellence in healthcare technology. We continuously strive to enhance our platform, integrating the latest advancements to improve user experience and deliver superior service. Whether you're booking your first appointment or managing ongoing care, Doctor Appointment Portal is here to support you every step of the way.
-        </p>
-        <p className="about-vision-title"><strong>Our Vision</strong></p>
-        <p>
-          Our vision at Doctor Appointment Portal is to create a seamless healthcare experience for every user. We aim to bridge the gap between patients and healthcare providers, making it easier for you to access the care you need, when you need it.
-        </p>
+        <h1 className="about-title">About Us</h1>
+        <div className="about-sections">
+          <section className="about-section">
+            <h2>Our Mission</h2>
+            <p>
+              We are dedicated to providing accessible and efficient healthcare services
+              through our innovative online platform. Our mission is to connect patients
+              with qualified healthcare professionals seamlessly.
+            </p>
+          </section>
+          
+          <section className="about-section">
+            <h2>Our Services</h2>
+            <ul className="services-list">
+              <li>Online Doctor Appointments</li>
+              <li>24/7 Medical Consultation</li>
+              <li>Specialized Healthcare Services</li>
+              <li>Digital Health Records</li>
+            </ul>
+          </section>
+
+          <section className="about-section">
+            <h2>Why Choose Us</h2>
+            <div className="features-grid">
+              <div className="feature-item">
+                <h3>Easy Booking</h3>
+                <p>Simple and quick appointment scheduling</p>
+              </div>
+              <div className="feature-item">
+                <h3>Expert Doctors</h3>
+                <p>Qualified and experienced healthcare professionals</p>
+              </div>
+              <div className="feature-item">
+                <h3>Secure Platform</h3>
+                <p>Your data is protected with us</p>
+              </div>
+              <div className="feature-item">
+                <h3>24/7 Support</h3>
+                <p>Round-the-clock customer assistance</p>
+              </div>
+            </div>
+          </section>
+        </div>
       </div>
     </div>
   );
