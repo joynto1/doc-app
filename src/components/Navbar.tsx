@@ -40,7 +40,7 @@ const Navbar: React.FC = () => {
         </div>
       </div>
       <div className="navbar-right">
-        <Link to="/admin" className={`admin-btn${location.pathname === '/admin' ? ' active' : ''}`}>Admin Panel</Link>
+        <Link to="/admin-panel" className={`admin-btn${location.pathname === '/admin-panel' ? ' active' : ''}`}>Admin Panel</Link>
         {user ? (
           <div className="user-info">
             <span className="user-icon">👤</span>
@@ -88,7 +88,7 @@ const Navbar: React.FC = () => {
 
           {/* Admin and Account Section */}
           <div className="mobile-nav-section">
-            <Link to="/admin" className={`mobile-nav-link admin-link${location.pathname === '/admin' ? ' active' : ''}`} onClick={toggleMobileMenu}>
+            <Link to="/admin-panel" className={`mobile-nav-link admin-link${location.pathname === '/admin-panel' ? ' active' : ''}`} onClick={toggleMobileMenu}>
               <span className="admin-icon">⚙️</span> Admin Panel
             </Link>
             

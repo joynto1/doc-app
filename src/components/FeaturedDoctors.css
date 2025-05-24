@@ -9,21 +9,22 @@
   margin-bottom: 1.5rem;
 }
 
-.featured-doctors-grid {
+.featuredSection-doctors-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 2rem;
-  
+  margin-bottom: 10px;
   justify-content: center;
 }
 
-.featured-doctor-card {
+.featuredSection-doctors-grid .featured-doctor-card {
   background: #f8fafc;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
   color: #222b45;
   margin-top: 50px;
-  width: 400px;
+  width: 300px;
+  height: 80%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -162,6 +163,11 @@
 
   .featured-doctor-card img {
     height: 240px;
+  }
+  .featuredSection-doctors-grid {
+    
+    grid-template-columns: repeat(1, 1fr);
+    
   }
 }
 

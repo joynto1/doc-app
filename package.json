@@ -1,5 +1,5 @@
 {
-  "homepage": "https://joynto1.github.io/doc-app",
+  "homepage": ".",
   "name": "doc-app",
   "version": "0.1.0",
   "private": true,
@@ -27,8 +27,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "predeploy":"npm run build",
-    "deploy":"gh-pages -d build"
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
@@ -51,5 +51,4 @@
   "devDependencies": {
     "gh-pages": "^6.3.0"
   }
-   
 }

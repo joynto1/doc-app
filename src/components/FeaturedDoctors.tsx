@@ -55,7 +55,7 @@ const FeaturedDoctors: React.FC = () => {
   return (
     <section className="featured-doctors">
       <h2>Popular Doctors</h2>
-      <div className="featured-doctors-grid">
+      <div className="featuredSection-doctors-grid">
         {doctors.map((doctor) => (
           <div
             key={doctor.id}
