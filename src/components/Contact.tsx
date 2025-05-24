@@ -25,12 +25,7 @@ const Contact: React.FC = () => {
 
   return (
     <div className="contact-container">
-      <div className="contact-image">
-        <img
-          src="https://th.bing.com/th/id/OIP.Y8ZneoN4D3vdZnPEJP3ScgHaH0?cb=iwc2&rs=1&pid=ImgDetMain"
-          alt="Doctor with family"
-        />
-      </div>
+     
       <div className="contact-content">
         <h1 className="contact-title">Contact Us</h1>
         
