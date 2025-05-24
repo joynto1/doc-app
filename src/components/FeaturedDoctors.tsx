@@ -62,15 +62,16 @@ const FeaturedDoctors: React.FC = () => {
             className="featured-doctor-card"
             onClick={() => handleDoctorClick(doctor)}
           >
-            <div className="featured-badge">Featured</div>
+            
             <img src={doctor.image} alt={doctor.name} />
-            <div className="doctor-info">
-              <h3>{doctor.name}</h3>
-              <p className="specialty"> Specialty :  {doctor.specialty}</p>
-              <p className="experience">   {doctor.experience} Experience ⭐⭐⭐</p>
-              <span className={`availability ${doctor.available ? 'available' : 'unavailable'}`}>
+            <div className="featured-doctor-info">
+            <span className={`availability ${doctor.available ? 'available' : 'unavailable'}`}>
                 {doctor.available ? 'Available' : 'Unavailable'}
               </span>
+              <h3>{doctor.name}</h3>
+              <p className="specialty">{doctor.specialty}</p>
+              <p className="experience">{doctor.experience} Experience ⭐⭐⭐</p>
+             
             </div>
           </div>
         ))}

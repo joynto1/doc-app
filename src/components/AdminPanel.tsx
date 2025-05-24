@@ -458,7 +458,7 @@ const AdminPanel: React.FC = () => {
             <h2>Current Doctors</h2>
             <div className="doctors-grid">
               {doctors.map((doctor) => (
-                <div key={doctor.id} className="doctor-card">
+                <div key={doctor.id} className="current-doctor-card">
                   <img src={doctor.image} alt={doctor.name} />
                   <h3>{doctor.name}</h3>
                   <p>Specialty: {doctor.specialty}</p>

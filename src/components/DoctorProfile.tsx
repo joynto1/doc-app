@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { doc, getDoc, collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import './DoctorProfile.css';
+import { TIME_SLOTS, DATES } from '../config/timeSlots';
 
 interface Doctor {
   id: string;
@@ -21,16 +22,16 @@ const DoctorProfile: React.FC = () => {
   const [doctor, setDoctor] = useState<Doctor | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedReason, setSelectedReason] = useState('');
+  const [selectedDate, setSelectedDate] = useState(6); // Default to last (FRI 30)
+  const [selectedTime, setSelectedTime] = useState(4); // Default to 12:00 pm
+  const [relatedDoctors, setRelatedDoctors] = useState<Doctor[]>([]);
 
   useEffect(() => {
     const fetchDoctor = async () => {
       try {
         if (!doctorId) return;
-        
         const doctorRef = doc(db, 'doctors', doctorId);
         const doctorSnap = await getDoc(doctorRef);
-        
         if (doctorSnap.exists()) {
           setDoctor({ id: doctorSnap.id, ...doctorSnap.data() } as Doctor);
         } else {
@@ -43,81 +44,118 @@ const DoctorProfile: React.FC = () => {
         console.error('Error fetching doctor:', err);
       }
     };
-
     fetchDoctor();
   }, [doctorId]);
 
+  useEffect(() => {
+    const fetchRelatedDoctors = async () => {
+      if (!doctor || !doctor.specialty) return;
+      try {
+        const doctorsRef = collection(db, 'doctors');
+        const q = query(doctorsRef, where('specialty', '==', doctor.specialty));
+        const querySnapshot = await getDocs(q);
+        const related = querySnapshot.docs
+          .map(docSnap => ({ id: docSnap.id, ...docSnap.data() } as Doctor))
+          .filter(d => d.id !== doctor.id)
+          .slice(0, 3);
+        setRelatedDoctors(related);
+      } catch (err) {
+        // fail silently
+      }
+    };
+    fetchRelatedDoctors();
+  }, [doctor]);
+
   const handleBookAppointment = () => {
     if (doctor) {
-      navigate('/appointment', { 
-        state: { 
+      navigate('/appointment', {
+        state: {
           doctorName: doctor.name,
-          doctorId: doctor.id
-        } 
+          doctorId: doctor.id,
+          date: DATES[selectedDate],
+          time: TIME_SLOTS[selectedTime].time,
+        },
       });
     }
+  };
+
+  const handleViewProfile = (id: string) => {
+    navigate(`/doctor/${id}`);
   };
 
   if (loading) {
     return <div className="loading">Loading doctor profile...</div>;
   }
-
   if (error || !doctor) {
     return <div className="error">{error || 'Doctor not found'}</div>;
   }
 
   return (
-    <div className="doctor-profile-container">
-      <div className="doctor-profile-card">
-        <div className="profile-header">
-          <img src={doctor.image} alt={doctor.name} className="profile-image" />
-          <div className="profile-info">
-            <h1>{doctor.name}</h1>
-            <p className="specialty">{doctor.specialty}</p>
-            <div className="experience-badge">
-              <span className="star">⭐</span>
-              <span>{doctor.experience} Experience</span>
-            </div>
-            <div className="availability">
-              <span className={`status-dot ${doctor.available ? 'available' : 'unavailable'}`}></span>
-              <span>{doctor.available ? 'Available' : 'Unavailable'}</span>
-            </div>
+    <div className="doctor-profile-main-container">
+      <div className="doctor-profile-card-new">
+        <img src={doctor.image} alt={doctor.name} className="profile-image-new" />
+        <div className="profile-info-new">
+          <div className="profile-title-row">
+            <h1 className="profile-name">{doctor.name} <span className="verified-icon" title="Verified">{/* blue check SVG */}<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#2563eb"/><path d="M6 10.5L9 13.5L14 8.5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span></h1>
+            <div className="profile-meta">MBBS - {doctor.specialty} <span className="profile-years">• Experience : {doctor.experience} Years</span></div>
           </div>
+          <div className="profile-about-row">
+            <div className="profile-about-label">About:</div>
+            <div className="profile-about-text">{doctor.about || ` ${doctor.name} has a strong commitment to delivering comprehensive medical care, focusing on preventive medicine, early diagnosis, and effective treatment strategies.`}</div>
+          </div>
+          <div className="profile-fee">Appointment fee: <span className="fee-amount">$50</span></div>
         </div>
+      </div>
 
-        <div className="profile-details">
-          <section className="appointment-section">
-            <h2>Book an Appointment</h2>
-            <button
-              className="book-appointment-btn"
-              onClick={handleBookAppointment}
-              disabled={!doctor.available}
+      <div className="booking-section">
+        <div className="booking-label">Booking slots</div>
+        <div className="booking-dates">
+          {DATES.map((d, idx) => (
+            <div
+              key={d.day + d.date}
+              className={`booking-date-pill${selectedDate === idx ? ' selected' : ''}`}
+              onClick={() => setSelectedDate(idx)}
             >
-              Book Appointment
-            </button>
-          </section>
+              <div className="booking-date-day">{d.day}</div>
+              <div className="booking-date-num">{d.date}</div>
+            </div>
+          ))}
+        </div>
+        <div className="booking-times">
+          {TIME_SLOTS.map((slot, idx) => (
+            <div
+              key={slot.id}
+              className={`booking-time-pill${selectedTime === idx ? ' selected' : ''}`}
+              onClick={() => setSelectedTime(idx)}
+            >
+              {slot.time}
+            </div>
+          ))}
+        </div>
+        {selectedTime === -1 && (
+          <div className="no-time-slot-message">
+            Please <strong>select a time slot</strong> to book your appointment
+          </div>
+        )}
+        <button className="book-appointment-btn-new" onClick={handleBookAppointment} disabled={!doctor.available || selectedTime === -1}>
+          Book an appointment
+        </button>
+      </div>
 
-          <section className="about-section">
-            <h2>About Dr. {doctor.name.split(' ')[1]}</h2>
-            {doctor.about ? (
-              <p>{doctor.about}</p>
-            ) : (
-              <p>
-                Dr. {doctor.name} is a highly experienced {doctor.specialty.toLowerCase()} with {doctor.experience} of practice.
-                Specializing in {doctor.specialty.toLowerCase()}, they provide comprehensive care and treatment
-                for various conditions and concerns.
-              </p>
-            )}
-          </section>
+      <div className="related-doctors-section">
+        <h2 className="related-title">Related Doctors</h2>
 
-          <section className="services-section">
-            <h2>Services Offered</h2>
-            <ul className="services-list">
-              {doctor.appointmentReasons.map((reason) => (
-                <li key={reason}>{reason}</li>
-              ))}
-            </ul>
-          </section>
+        <div className="related-doctors-list">
+          {relatedDoctors.length === 0 && <div style={{color:'#888',fontSize:'1rem'}}>No related doctors found.</div>}
+          {relatedDoctors.map((relDoc) => (
+            <div className="related-doctor-card clickable" key={relDoc.id} onClick={() => handleViewProfile(relDoc.id)}>
+              <img className="related-doctor-img" src={relDoc.image} alt={relDoc.name} />
+              <div className="related-doctor-info">
+                <div className="related-doctor-name">{relDoc.name}</div>
+                <div className="related-doctor-specialty">{relDoc.specialty}</div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

@@ -22,21 +22,21 @@ interface Doctor {
     'Endocrinologist',
     'Gastroenterologist',
     'Neurologist',
-  'Gynecologist',
-  'Obstetrician',
-    'Ophthalmologist',
-    'Orthopedist',
-    'Pediatrician',
-    'Psychiatrist',
-    'Pulmonologist',
-    'Rheumatologist',
-    'Urologist',
-    'ENT Specialist',
-    'Dentist',
-    'Surgeon',
-    'Anesthesiologist',
-    'Radiologist',
-    'Pathologist'
+    'Gynecologist',
+    'Obstetrician',
+    // 'Ophthalmologist',
+    // 'Orthopedist',
+    // 'Pediatrician',
+    // 'Psychiatrist',
+    // 'Pulmonologist',
+    // 'Rheumatologist',
+    // 'Urologist',
+    // 'ENT Specialist',
+    // 'Dentist',
+    // 'Surgeon',
+    // 'Anesthesiologist',
+    // 'Radiologist',
+    // 'Pathologist'
   ];
 
 const AllDoctors: React.FC = () => {
@@ -109,7 +109,7 @@ const AllDoctors: React.FC = () => {
   return (
     <div className="all-doctors-container">
       <aside className="sidebar">
-        <h3>Browse through the doctors specialist.</h3>
+        <h3>Specialist Doctors</h3>
         <div className="specialty-list">
           {specialties.map((spec) => (
             <button
@@ -126,16 +126,16 @@ const AllDoctors: React.FC = () => {
         {doctors.length > 0 ? (
           <div className="all-doctors-grid">
             {doctors.map((doctor) => (
-              <div className="doctor-card" key={doctor.id}>
+              <div className="all-doctor-card" key={doctor.id}>
                 <img className="doctor-img" src={doctor.image} alt={doctor.name} />
-                <div className="doctor-info">
-                  <span className="status">
-                    <span className="dot" /> {doctor.available ? 'Available' : 'Unavailable'}
+                <div className="alldoctor-info">
+                  <span className="all-doc-status">
+                    <span className="dot" />{doctor.available ? 'Available' : 'Unavailable'}
                   </span>
                   <h3>{doctor.name}</h3>
                   <p>{doctor.specialty}</p>
-                  <p className="experience">Experience: {doctor.experience}</p>
-                  <div className="button-group">
+                  <p className="all_doc_experience">Experience: {doctor.experience}</p>
+                  <div className="all-button-group">
                     <button 
                       className="view-profile-btn"
                       onClick={() => handleViewProfile(doctor.id)}

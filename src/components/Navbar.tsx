@@ -30,7 +30,7 @@ const Navbar: React.FC = () => {
       <div className="navbar-left">
         <div className="logo">
           <div className="logo-icon">🏥</div>
-          <span className="logo-text">Doctor Appointment Portal</span>
+          <span className="logo-text">HealPoint</span>
         </div>
         <div className="nav-links desktop-nav">
           <Link to="/" className={`nav-link${location.pathname === '/' ? ' active' : ''}`}>Home</Link>

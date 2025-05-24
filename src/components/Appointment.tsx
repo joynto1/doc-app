@@ -6,21 +6,38 @@ import { collection, onSnapshot, addDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { createUserWithEmailAndPassword, EmailAuthProvider } from 'firebase/auth';
 import { useAuth } from '../contexts/AuthContext';
-
-interface TimeSlot {
-  id: string;
-  time: string;
-  available: boolean;
-}
+import { TIME_SLOTS, TimeSlot } from '../config/timeSlots';
 
 interface LocationState {
-  doctorName: string;
+  doctorName?: string;
+  doctorId?: string;
+  date?: { day: string; date: string };
+  time?: string;
+}
+
+// Helper to get next date string (YYYY-MM-DD) for given day and date
+function getNextDateString(day: string, dateNum: string): string {
+  const targetDay = day.toUpperCase();
+  const targetDate = parseInt(dateNum, 10);
+  const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+  const today = new Date();
+  for (let i = 0; i < 14; i++) { // look ahead 2 weeks
+    const d = new Date();
+    d.setDate(today.getDate() + i);
+    if (
+      daysOfWeek[d.getDay()] === targetDay &&
+      d.getDate() === targetDate
+    ) {
+      return d.toISOString().split('T')[0];
+    }
+  }
+  return '';
 }
 
 const Appointment: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { doctorName } = (location.state as LocationState) || { doctorName: 'Selected Doctor' };
+  const { doctorName, doctorId, date, time } = (location.state as LocationState) || {};
 
   const { currentUser } = useAuth();
 
@@ -32,27 +49,7 @@ const Appointment: React.FC = () => {
   const [loadingAppointments, setLoadingAppointments] = useState(true);
   const [patientName, setPatientName] = useState('');
   const [phone, setPhone] = useState('');
-
-  // Generate time slots from 9 AM to 5 PM
-  const timeSlots: TimeSlot[] = [
-    { id: '1', time: '09:00 AM', available: true },
-    { id: '2', time: '09:30 AM', available: true },
-    { id: '3', time: '10:00 AM', available: true },
-    { id: '4', time: '10:30 AM', available: true },
-    { id: '5', time: '11:00 AM', available: true },
-    { id: '6', time: '11:30 AM', available: true },
-    { id: '7', time: '12:00 PM', available: true },
-    { id: '8', time: '12:30 PM', available: true },
-    { id: '9', time: '01:00 PM', available: true },
-    { id: '10', time: '01:30 PM', available: true },
-    { id: '11', time: '02:00 PM', available: true },
-    { id: '12', time: '02:30 PM', available: true },
-    { id: '13', time: '03:00 PM', available: true },
-    { id: '14', time: '03:30 PM', available: true },
-    { id: '15', time: '04:00 PM', available: true },
-    { id: '16', time: '04:30 PM', available: true },
-    { id: '17', time: '05:00 PM', available: true },
-  ];
+  const [showTimeSlots, setShowTimeSlots] = useState(false);
 
   // Get minimum date (today)
   const today = new Date().toISOString().split('T')[0];
@@ -62,24 +59,37 @@ const Appointment: React.FC = () => {
   maxDate.setMonth(maxDate.getMonth() + 3);
   const maxDateStr = maxDate.toISOString().split('T')[0];
 
+  // Auto-fill date and time from location.state if present
+  useEffect(() => {
+    if (date && date.day && date.date) {
+      const realDate = getNextDateString(date.day, date.date);
+      setSelectedDate(realDate);
+    }
+    if (time) {
+      const slot = TIME_SLOTS.find(slot => slot.time === time);
+      if (slot) setSelectedTimeSlot(slot.id);
+    }
+  }, [date, time]);
+
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedDate(e.target.value);
-    setSelectedTimeSlot(''); // Reset time slot when date changes
   };
 
   const handleTimeSlotSelect = (timeSlotId: string) => {
     setSelectedTimeSlot(timeSlotId);
+    setShowTimeSlots(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedDate && selectedTimeSlot && reason && patientName && phone) {
-      const selectedTime = timeSlots.find(slot => slot.id === selectedTimeSlot)?.time;
+      const selectedTime = TIME_SLOTS.find(slot => slot.id === selectedTimeSlot)?.time;
       try {
         await addDoc(collection(db, 'appointments'), {
           patientName,
           phone,
           doctorName,
+          doctorId,
           date: selectedDate,
           time: selectedTime,
           reason,
@@ -103,11 +113,6 @@ const Appointment: React.FC = () => {
     }
   };
 
-  const handleBookAppointment = (doctorName: string) => {
-    // Navigate to appointment page with doctor info
-    navigate('/appointment', { state: { doctorName } });
-  };
-
   useEffect(() => {
     const appointmentsRef = collection(db, 'appointments');
     const unsubscribe = onSnapshot(appointmentsRef, (snapshot) => {
@@ -117,6 +122,8 @@ const Appointment: React.FC = () => {
     });
     return () => unsubscribe();
   }, []);
+
+  const selectedTime = TIME_SLOTS.find(slot => slot.id === selectedTimeSlot)?.time || '';
 
   return (
     <div className="appointment-container">
@@ -178,11 +185,45 @@ const Appointment: React.FC = () => {
             />
           </div>
 
-          {selectedDate && (
-            <div className="form-group">
-              <label>Select Time Slot:</label>
-              <div className="time-slots-grid">
-                {timeSlots.map((slot) => (
+          <div className="form-group">
+            <label>Selected Time:</label>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <input
+                type="text"
+                value={selectedTime}
+                readOnly
+                style={{ 
+                  flex: 1,
+                  padding: '0.75rem', 
+                  borderRadius: '4px', 
+                  border: '1px solid #ddd', 
+                  background: '#f3f4f6' 
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowTimeSlots(!showTimeSlots)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  borderRadius: '4px',
+                  border: '1px solid #2563eb',
+                  background: '#fff',
+                  color: '#2563eb',
+                  cursor: 'pointer',
+                  fontWeight: 600
+                }}
+              >
+                {showTimeSlots ? 'Hide Times' : 'Time Slots'}
+              </button>
+            </div>
+            {showTimeSlots && (
+              <div className="time-slots-grid" style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', 
+                gap: '0.5rem',
+                marginTop: '0.5rem'
+              }}>
+                {TIME_SLOTS.map((slot) => (
                   <button
                     key={slot.id}
                     type="button"
@@ -191,33 +232,52 @@ const Appointment: React.FC = () => {
                     }`}
                     onClick={() => handleTimeSlotSelect(slot.id)}
                     disabled={!slot.available}
+                    style={{
+                      padding: '0.5rem',
+                      borderRadius: '4px',
+                      border: '1px solid #ddd',
+                      background: selectedTimeSlot === slot.id ? '#2563eb' : '#fff',
+                      color: selectedTimeSlot === slot.id ? '#fff' : '#000',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
                   >
                     {slot.time}
                   </button>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           <div className="form-group">
-            <label htmlFor="reason">Reason for Appointment:</label>
+            <label htmlFor="reason">Reason for Visit:</label>
             <textarea
               id="reason"
               value={reason}
               onChange={e => setReason(e.target.value)}
-              rows={3}
               required
-              placeholder="Describe your reason for the appointment"
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid #ddd' }}
+              placeholder="Please describe your reason for visit"
+              style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid #ddd', minHeight: '100px' }}
             />
           </div>
 
-          <button
-            type="submit"
-            className="book-btn"
-            disabled={!selectedDate || !selectedTimeSlot || !reason || !patientName || !phone}
+          <button 
+            type="submit" 
+            className="submit-btn"
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              borderRadius: '4px',
+              border: 'none',
+              background: '#2563eb',
+              color: '#fff',
+              fontSize: '1rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'background 0.2s'
+            }}
           >
-            Confirm Appointment
+            Book Appointment
           </button>
         </form>
       </div>

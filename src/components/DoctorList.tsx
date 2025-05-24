@@ -15,6 +15,9 @@ interface Doctor {
 
 const DoctorList: React.FC = () => {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [filteredDoctors, setFilteredDoctors] = useState<Doctor[]>([]);
+  const [selectedSpecialty, setSelectedSpecialty] = useState<string>('');
+  const [specialties, setSpecialties] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -30,6 +33,11 @@ const DoctorList: React.FC = () => {
         })) as Doctor[];
         const available = doctorsList.filter(doc => doc.available);
         setDoctors(available);
+        setFilteredDoctors(available);
+        
+        // Extract unique specialties
+        const uniqueSpecialties = Array.from(new Set(available.map(doc => doc.specialty)));
+        setSpecialties(uniqueSpecialties);
       } catch (err) {
         console.error('Error fetching doctors:', err);
         setError('Failed to fetch doctors. Please try again.');
@@ -40,6 +48,17 @@ const DoctorList: React.FC = () => {
 
     fetchDoctors();
   }, []);
+
+  useEffect(() => {
+    if (selectedSpecialty === '') {
+      setFilteredDoctors(doctors);
+    } else {
+      const filtered = doctors.filter(doctor => 
+        doctor.specialty === selectedSpecialty
+      );
+      setFilteredDoctors(filtered);
+    }
+  }, [selectedSpecialty, doctors]);
 
   const handleSelectDoctor = (doctor: Doctor) => {
     navigate('/appointment', { 
@@ -67,29 +86,39 @@ const DoctorList: React.FC = () => {
     <div className="doctor-list-container">
       <h1>Select a Doctor for General Consultation</h1>
       <p className="subtitle">Choose from our available doctors below</p>
+      
+      <div className="search-container">
+        <select
+          value={selectedSpecialty}
+          onChange={(e) => setSelectedSpecialty(e.target.value)}
+          className="specialty-select"
+        >
+          <option value="">All Specialties</option>
+          {specialties.map((specialty) => (
+            <option key={specialty} value={specialty}>
+              {specialty}
+            </option>
+          ))}
+        </select>
+      </div>
+
       <div className="doctors-grid">
-        {doctors.map((doctor) => (
+        {filteredDoctors.map((doctor) => (
           <div 
             key={doctor.id} 
             className="doctor-card"
-            onClick={() => handleSelectDoctor(doctor)}
+            
           >
+            
             <img src={doctor.image} alt={doctor.name} className="doctor-image" />
-            <div className="doctor-info">
-              <h2>Dr. {doctor.name}</h2>
+            <div className="doclist-doctor-info">
+              <span className="status available">Available</span>
+              <h2>{doctor.name}</h2>
               <p className="specialty">{doctor.specialty}</p>
               <p className="experience">Experience: {doctor.experience}</p>
-              <span className="status available">Available</span>
+              
               <div className="button-group">
-                <button 
-                  className="select-doctor-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSelectDoctor(doctor);
-                  }}
-                >
-                  Select Doctor
-                </button>
+               
                 <button 
                   className="view-profile-btn"
                   onClick={(e) => {

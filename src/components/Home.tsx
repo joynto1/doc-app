@@ -23,7 +23,7 @@ const Home: React.FC = () => {
             className="book-btn"
             onClick={() => navigate('/doctors')}
           >
-            Book appointment <span>→</span>
+            Book appointment <span className='arrowForBook'>→</span>
           </button>
         </div>
         <div className="hero-image">
