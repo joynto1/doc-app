@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import './AllDoctors.css';
@@ -15,24 +15,50 @@ interface Doctor {
   appointmentReasons: string[];
 }
 
+  const specialties = [
+    'General Physician',
+    'Cardiologist',
+    'Dermatologist',
+    'Endocrinologist',
+    'Gastroenterologist',
+    'Neurologist',
+  'Gynecologist',
+  'Obstetrician',
+    'Ophthalmologist',
+    'Orthopedist',
+    'Pediatrician',
+    'Psychiatrist',
+    'Pulmonologist',
+    'Rheumatologist',
+    'Urologist',
+    'ENT Specialist',
+    'Dentist',
+    'Surgeon',
+    'Anesthesiologist',
+    'Radiologist',
+    'Pathologist'
+  ];
+
 const AllDoctors: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedReason, setSelectedReason] = useState<string>('');
   const { currentUser } = useAuth();
 
-  const specialties = [
-    'General physician',
-    'Gynecologist',
-    'Dermatologist',
-    'Pediatricians',
-    'Neurologist',
-    'Gastroenterologist',
-  ];
+  // Read specialty from location.state if present
+  const specialtyFromState = (location.state as any)?.specialty;
+  const [selectedSpecialty, setSelectedSpecialty] = useState<string>(specialtyFromState || specialties[0]);
 
-  const [selectedSpecialty, setSelectedSpecialty] = useState(specialties[0]);
+  useEffect(() => {
+    // If specialtyFromState changes (e.g., user navigates from SpecialtySection), update selectedSpecialty
+    if (specialtyFromState) {
+      setSelectedSpecialty(specialtyFromState);
+    }
+    // eslint-disable-next-line
+  }, [specialtyFromState]);
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -40,12 +66,10 @@ const AllDoctors: React.FC = () => {
         const doctorsRef = collection(db, 'doctors');
         const q = query(doctorsRef, where('specialty', '==', selectedSpecialty));
         const querySnapshot = await getDocs(q);
-        
         const doctorsData = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         })) as Doctor[];
-        
         setDoctors(doctorsData);
         setLoading(false);
       } catch (err) {
@@ -54,7 +78,6 @@ const AllDoctors: React.FC = () => {
         console.error('Error fetching doctors:', err);
       }
     };
-
     fetchDoctors();
   }, [selectedSpecialty]);
 
@@ -101,7 +124,7 @@ const AllDoctors: React.FC = () => {
       </aside>
       <section className="doctors-list">
         {doctors.length > 0 ? (
-          <div className="doctors-grid">
+          <div className="all-doctors-grid">
             {doctors.map((doctor) => (
               <div className="doctor-card" key={doctor.id}>
                 <img className="doctor-img" src={doctor.image} alt={doctor.name} />

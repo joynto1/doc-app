@@ -12,6 +12,7 @@ interface Doctor {
   available: boolean;
   experience: string;
   appointmentReasons: string[];
+  about: string;
 }
 
 const DoctorProfile: React.FC = () => {
@@ -98,11 +99,15 @@ const DoctorProfile: React.FC = () => {
 
           <section className="about-section">
             <h2>About Dr. {doctor.name.split(' ')[1]}</h2>
-            <p>
-              Dr. {doctor.name} is a highly experienced {doctor.specialty.toLowerCase()} with {doctor.experience} of practice.
-              Specializing in {doctor.specialty.toLowerCase()}, they provide comprehensive care and treatment
-              for various conditions and concerns.
-            </p>
+            {doctor.about ? (
+              <p>{doctor.about}</p>
+            ) : (
+              <p>
+                Dr. {doctor.name} is a highly experienced {doctor.specialty.toLowerCase()} with {doctor.experience} of practice.
+                Specializing in {doctor.specialty.toLowerCase()}, they provide comprehensive care and treatment
+                for various conditions and concerns.
+              </p>
+            )}
           </section>
 
           <section className="services-section">

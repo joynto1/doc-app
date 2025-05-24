@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './components/Home';
@@ -14,6 +14,7 @@ import AdminLogin from './components/AdminLogin';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
 import DoctorProfile from './components/DoctorProfile';
+import DoctorList from './components/DoctorList';
 import { AuthProvider } from './contexts/AuthContext';
 import './App.css';
 
@@ -25,14 +26,14 @@ function App() {
           <Navbar />
           <main className="main-content">
             <Routes>
-              <Route path="/home" element={<Home />} />
+              <Route path="/" element={<Home />} />
               <Route path="/all-doctors" element={<AllDoctors />} />
               <Route path="/doctor/:doctorId" element={<DoctorProfile />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/admin-login" element={<AdminLogin />} />
               <Route
-                path="/admin"
+                path="/admin-panel"
                 element={
                   <AdminProtectedRoute>
                     <AdminPanel />
@@ -49,7 +50,7 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-             
+              <Route path="/doctors" element={<DoctorList />} />
             </Routes>
           </main>
           <Footer />

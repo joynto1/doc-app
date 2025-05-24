@@ -1,6 +1,7 @@
 import React, { JSX } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FeaturedDoctors from './FeaturedDoctors';
+import SpecialtySection from './SpecialtySection';
 import './Home.css';
 
 const Home: React.FC = () => {
@@ -20,7 +21,7 @@ const Home: React.FC = () => {
           </div>
           <button 
             className="book-btn"
-            onClick={() => navigate('/appointment', { state: { doctorName: 'General Appointment' } })}
+            onClick={() => navigate('/doctors')}
           >
             Book appointment <span>→</span>
           </button>
@@ -30,9 +31,9 @@ const Home: React.FC = () => {
         </div>
       </section>
 
+      <SpecialtySection />
       <FeaturedDoctors />
 
-       
     </div>
   );
 };

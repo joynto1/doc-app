@@ -25,43 +25,58 @@
   
 }
 .sidebar {
-  flex: 0 0 300px;
-  background: var(--surface-color);
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex: 0 0 260px;
+  background: #fff;
+  padding: 2rem 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(37, 99, 235, 0.07);
+  margin-right: 2rem;
+  min-width: 220px;
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .sidebar h3 {
-  margin-bottom: 1.5rem;
-  color: var(--text-primary);
-  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  color: #222;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 
 .specialty-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .specialty-btn {
-  padding: 0.75rem 1rem;
+  background: #f3f6fa;
+  color: #2563eb;
   border: none;
-  background: var(--accent-color);
-  border-radius: 4px;
+  border-radius: 999px;
+  padding: 0.7rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  text-align: left;
-  transition: all 0.2s ease;
-  color: var(--primary-color);
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.04);
+  outline: none;
 }
 
-.specialty-btn:hover {
-  background: #e0e0e0;
+.specialty-btn:hover,
+.specialty-btn:focus {
+  background: #e0e7ff;
+  color: #1d4ed8;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.10);
 }
 
 .specialty-btn.active {
-  background: var(--primary-color);
+  background: linear-gradient(90deg, #2563eb 60%, #60a5fa 100%);
   color: #fff;
+  font-weight: 700;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.13);
+  border: none;
 }
 
 .doctors-list {
@@ -113,7 +128,11 @@
   background: #fff;
   transition: border 0.2s;
 }
-
+.all-doctors-grid{
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
 .doctor-card:hover .doctor-avatar {
   border: 4px solid var(--primary-hover, #1d4ed8);
 }
@@ -176,6 +195,10 @@
   transition: background 0.2s, color 0.2s;
 }
 
+.all-doctors-grid .doctor-img{
+  height: 170px ;
+  margin-bottom: 10px;
+}
 .doctor-actions {
   margin-top: 0.3rem;
   width: 100%;
@@ -252,6 +275,12 @@
     width: 36px;
     height: 36px;
   }
+  
+.all-doctors-grid{
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
 }
 
 @media (max-width: 1024px) {

@@ -4,6 +4,29 @@ import { db } from '../firebase/config';
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, where } from 'firebase/firestore';
 import './AdminPanel.css';
 
+const SPECIALTIES = [
+  'General Physician',
+  'Cardiologist',
+  'Dermatologist',
+  'Endocrinologist',
+  'Gastroenterologist',
+  'Neurologist',
+  'Obstetrician/Gynecologist',
+  'Ophthalmologist',
+  'Orthopedist',
+  'Pediatrician',
+  'Psychiatrist',
+  'Pulmonologist',
+  'Rheumatologist',
+  'Urologist',
+  'ENT Specialist',
+  'Dentist',
+  'Surgeon',
+  'Anesthesiologist',
+  'Radiologist',
+  'Pathologist'
+];
+
 interface Doctor {
   id?: string;
   name: string;
@@ -13,6 +36,7 @@ interface Doctor {
   experience: string;
   appointmentReasons: string[];
   featured: boolean;
+  about: string;
 }
 
 interface Appointment {
@@ -43,11 +67,13 @@ const AdminPanel: React.FC = () => {
     available: true,
     experience: '',
     appointmentReasons: [],
-    featured: false
+    featured: false,
+    about: ''
   });
   const [newReason, setNewReason] = useState('');
   const [loadingAppointments, setLoadingAppointments] = useState(true);
   const [actionDone, setActionDone] = useState<{id: string, action: string} | null>(null);
+  const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
 
   useEffect(() => {
     fetchDoctors();
@@ -76,8 +102,48 @@ const AdminPanel: React.FC = () => {
     try {
       const appointmentsRef = collection(db, 'appointments');
       const snapshot = await getDocs(appointmentsRef);
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setAppointments(data);
+      const data = snapshot.docs.map(doc => ({ 
+        id: doc.id, 
+        ...doc.data() 
+      })) as Appointment[];
+      
+      // Sort appointments by date and time only
+      const sortedData = data.sort((a, b) => {
+        // Sort by date
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        
+        // Handle invalid dates
+        if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+          return 0;
+        }
+        
+        if (dateA.getTime() !== dateB.getTime()) {
+          return dateA.getTime() - dateB.getTime();
+        }
+        
+        // If dates are the same, sort by time
+        try {
+          const timeA = a.time.split(':').map(Number);
+          const timeB = b.time.split(':').map(Number);
+          
+          // Validate time format
+          if (timeA.length !== 2 || timeB.length !== 2) {
+            return 0;
+          }
+          
+          // Convert time to minutes for easier comparison
+          const minutesA = timeA[0] * 60 + timeA[1];
+          const minutesB = timeB[0] * 60 + timeB[1];
+          
+          return minutesA - minutesB;
+        } catch (error) {
+          console.error('Error parsing time:', error);
+          return 0;
+        }
+      });
+      
+      setAppointments(sortedData);
     } catch (err) {
       setError('Failed to fetch appointments');
       console.error('Error fetching appointments:', err);
@@ -100,7 +166,8 @@ const AdminPanel: React.FC = () => {
         available: true,
         experience: '',
         appointmentReasons: [],
-        featured: false
+        featured: false,
+        about: ''
       });
       setNewReason('');
       fetchDoctors();
@@ -164,6 +231,49 @@ const AdminPanel: React.FC = () => {
     navigate('/admin-login');
   };
 
+  const handleEditDoctor = (doctor: Doctor) => {
+    setEditingDoctor(doctor);
+    setNewDoctor({
+      name: doctor.name,
+      specialty: doctor.specialty,
+      image: doctor.image,
+      available: doctor.available,
+      experience: doctor.experience,
+      appointmentReasons: doctor.appointmentReasons,
+      featured: doctor.featured,
+      about: doctor.about || ''
+    });
+    setNewReason('');
+  };
+
+  const handleUpdateDoctor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingDoctor?.id) return;
+
+    try {
+      await updateDoc(doc(db, 'doctors', editingDoctor.id), {
+        ...newDoctor,
+        appointmentReasons: newDoctor.appointmentReasons || []
+      });
+      setEditingDoctor(null);
+      setNewDoctor({
+        name: '',
+        specialty: '',
+        image: '',
+        available: true,
+        experience: '',
+        appointmentReasons: [],
+        featured: false,
+        about: ''
+      });
+      setNewReason('');
+      fetchDoctors();
+    } catch (err) {
+      setError('Failed to update doctor');
+      console.error('Error updating doctor:', err);
+    }
+  };
+
   if (loading) {
     return <div className="loading">Loading admin panel...</div>;
   }
@@ -197,8 +307,8 @@ const AdminPanel: React.FC = () => {
       {activeTab === 'doctors' ? (
         <>
           <section className="add-doctor-section">
-            <h2>Add New Doctor</h2>
-            <form onSubmit={handleAddDoctor} className="add-doctor-form">
+            <h2>{editingDoctor ? 'Edit Doctor' : 'Add New Doctor'}</h2>
+            <form onSubmit={editingDoctor ? handleUpdateDoctor : handleAddDoctor} className="add-doctor-form">
               <div className="form-group">
                 <label>Name:</label>
                 <input
@@ -212,36 +322,67 @@ const AdminPanel: React.FC = () => {
 
               <div className="form-group">
                 <label>Specialty:</label>
-                <input
-                  type="text"
+                <select
                   value={newDoctor.specialty}
                   onChange={(e) => setNewDoctor(prev => ({ ...prev, specialty: e.target.value }))}
                   required
-                  placeholder="General physician"
-                />
+                  className="specialty-select"
+                >
+                  <option value="">Select a specialty</option>
+                  <option value="General Physician">General Physician</option>
+                  <option value="Cardiologist">Cardiologist</option>
+                  <option value="Dermatologist">Dermatologist</option>
+                  <option value="Endocrinologist">Endocrinologist</option>
+                  <option value="Gastroenterologist">Gastroenterologist</option>
+                  <option value="Neurologist">Neurologist</option>
+                  <option value="Obstetrician/Gynecologist">Obstetrician/Gynecologist</option>
+                  <option value="Ophthalmologist">Ophthalmologist</option>
+                  <option value="Orthopedist">Orthopedist</option>
+                  <option value="Pediatrician">Pediatrician</option>
+                  <option value="Psychiatrist">Psychiatrist</option>
+                  <option value="Pulmonologist">Pulmonologist</option>
+                  <option value="Rheumatologist">Rheumatologist</option>
+                  <option value="Urologist">Urologist</option>
+                  <option value="ENT Specialist">ENT Specialist</option>
+                  <option value="Dentist">Dentist</option>
+                  <option value="Surgeon">Surgeon</option>
+                  <option value="Anesthesiologist">Anesthesiologist</option>
+                  <option value="Radiologist">Radiologist</option>
+                  <option value="Pathologist">Pathologist</option>
+                </select>
               </div>
 
-          <div className="form-group">
+              <div className="form-group">
                 <label>Image URL:</label>
-            <input
+                <input
                   type="url"
                   value={newDoctor.image}
                   onChange={(e) => setNewDoctor(prev => ({ ...prev, image: e.target.value }))}
-              required
+                  required
                   placeholder="https://example.com/image.jpg"
-            />
-          </div>
+                />
+              </div>
 
-          <div className="form-group">
+              <div className="form-group">
                 <label>Experience:</label>
-            <input
+                <input
                   type="text"
                   value={newDoctor.experience}
                   onChange={(e) => setNewDoctor(prev => ({ ...prev, experience: e.target.value }))}
-              required
+                  required
                   placeholder="15 years"
-            />
-          </div>
+                />
+              </div>
+
+              <div className="form-group">
+                <label>About:</label>
+                <textarea
+                  value={newDoctor.about}
+                  onChange={(e) => setNewDoctor(prev => ({ ...prev, about: e.target.value }))}
+                  placeholder="Enter doctor's about information, qualifications, and achievements..."
+                  rows={4}
+                />
+              </div>
 
               <div className="form-group">
                 <label>Appointment Reasons (comma-separated):</label>
@@ -285,8 +426,32 @@ const AdminPanel: React.FC = () => {
                 </div>
               </div>
 
-              <button type="submit" className="submit-btn">Add Doctor</button>
-        </form>
+              <button type="submit" className="submit-btn">
+                {editingDoctor ? 'Update Doctor' : 'Add Doctor'}
+              </button>
+              {editingDoctor && (
+                <button
+                  type="button"
+                  className="cancel-btn"
+                  onClick={() => {
+                    setEditingDoctor(null);
+                    setNewDoctor({
+                      name: '',
+                      specialty: '',
+                      image: '',
+                      available: true,
+                      experience: '',
+                      appointmentReasons: [],
+                      featured: false,
+                      about: ''
+                    });
+                    setNewReason('');
+                  }}
+                >
+                  Cancel Edit
+                </button>
+              )}
+            </form>
           </section>
 
           <section className="doctors-list-section">
@@ -298,6 +463,7 @@ const AdminPanel: React.FC = () => {
                   <h3>{doctor.name}</h3>
                   <p>Specialty: {doctor.specialty}</p>
                   <p>Experience: {doctor.experience}</p>
+                  {doctor.about && <p className="doctor-about">{doctor.about}</p>}
                   <div className="doctor-actions">
                     <button
                       className={`availability-btn ${doctor.available ? 'available' : 'unavailable'}`}
@@ -312,6 +478,12 @@ const AdminPanel: React.FC = () => {
                       {doctor.featured ? 'Featured' : 'Not Featured'}
                     </button>
                     <button
+                      className="edit-btn"
+                      onClick={() => handleEditDoctor(doctor)}
+                    >
+                      Edit
+                    </button>
+                    <button
                       className="delete-btn"
                       onClick={() => handleDeleteDoctor(doctor.id!)}
                     >
@@ -320,7 +492,7 @@ const AdminPanel: React.FC = () => {
                   </div>
                 </div>
               ))}
-      </div>
+            </div>
           </section>
         </>
       ) : (
@@ -334,6 +506,7 @@ const AdminPanel: React.FC = () => {
             <table className="appointments-table">
               <thead>
                 <tr>
+                  <th>No.</th>
                   <th>Patient</th>
                   <th>Phone</th>
                   <th>Doctor</th>
@@ -346,42 +519,52 @@ const AdminPanel: React.FC = () => {
               </thead>
               <tbody>
                 {appointments
-                  .filter(app => app.status !== 'cancelled')
-                  .map(app => (
-                    <tr key={app.id}>
-                      <td>{app.patientName}</td>
-                      <td>{app.phone || '-'}</td>
-                      <td>{app.doctorName}</td>
-                      <td>{app.reason}</td>
-                      <td>{app.date}</td>
-                      <td>{app.time}</td>
-                      <td className={`status-${app.status}`}>{app.status}</td>
-                      <td>
-                        {app.status === 'pending' ? (
-                          actionDone && actionDone.id === app.id ? (
-                            <span style={{ color: 'green', fontWeight: 600 }}>Done</span>
+                  .filter((app: Appointment) => app.status !== 'cancelled')
+                  .map((app: Appointment, index: number) => {
+                    // Format date for display
+                    const displayDate = new Date(app.date).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    });
+                    
+                    return (
+                      <tr key={app.id}>
+                        <td>{index + 1}</td>
+                        <td>{app.patientName}</td>
+                        <td>{app.phone || '-'}</td>
+                        <td>{app.doctorName}</td>
+                        <td>{app.reason}</td>
+                        <td>{displayDate}</td>
+                        <td>{app.time}</td>
+                        <td className={`status-${app.status}`}>{app.status}</td>
+                        <td>
+                          {app.status === 'pending' ? (
+                            actionDone && actionDone.id === app.id ? (
+                              <span style={{ color: 'green', fontWeight: 600 }}>Done</span>
+                            ) : (
+                              <>
+                                <button
+                                  className="confirm-btn"
+                                  onClick={() => handleUpdateAppointmentStatus(app.id!, 'confirmed')}
+                                >
+                                  Confirm
+                                </button>
+                                <button
+                                  className="cancel-btn"
+                                  onClick={() => handleUpdateAppointmentStatus(app.id!, 'cancelled')}
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            )
                           ) : (
-                            <>
-                              <button
-                                className="confirm-btn"
-                                onClick={() => handleUpdateAppointmentStatus(app.id, 'confirmed')}
-                              >
-                                Confirm
-                              </button>
-                              <button
-                                className="cancel-btn"
-                                onClick={() => handleUpdateAppointmentStatus(app.id, 'cancelled')}
-                              >
-                                Cancel
-                              </button>
-                            </>
-                          )
-                        ) : (
-                          <span style={{ color: '#888' }}>—</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                            <span style={{ color: '#888' }}>—</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
               </tbody>
             </table>
           )}
