@@ -165,7 +165,8 @@
     height: 240px;
   }
   .featuredSection-doctors-grid {
-    
+    justify-items: center;
+    margin-top: 30px;
     grid-template-columns: repeat(1, 1fr);
     
   }
