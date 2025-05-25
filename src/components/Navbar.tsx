@@ -29,8 +29,8 @@ const Navbar: React.FC = () => {
     <nav className="navbar">
       <div className="navbar-left">
         <div className="logo">
-          <div className="logo-icon">🏥</div>
-          <span className="logo-text">HealPoint</span>
+       
+          <span className="logo-text"><a href="/"><img src="../public/favicon.jpeg" alt="" />HealPoint</a></span>
         </div>
         <div className="nav-links desktop-nav">
           <Link to="/" className={`nav-link${location.pathname === '/' ? ' active' : ''}`}>Home</Link>
