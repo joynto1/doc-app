@@ -14,8 +14,7 @@
 }
 .alldoctor-info{
   text-align: center;
-  margin-left: 30px;
-  margin-right: 30px;
+ 
 }
 .all-button-group{
 margin-top:40px;
@@ -28,6 +27,8 @@ margin-top:40px;
   color: #22c55e;
   margin-bottom:0px;
   padding:0px;
+  display: flex;
+  justify-content: center;
     
 
 }

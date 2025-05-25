@@ -94,8 +94,8 @@ const AllDoctors: React.FC = () => {
     navigate('/appointment', { state: { doctorName } });
   };
 
-  const handleViewProfile = (doctorId: string) => {
-    navigate(`/doctor/${doctorId}`);
+  const handleDoctorClick = (doctor: Doctor) => {
+    navigate(`/doctor/${doctor.id}`);
   };
 
   if (loading) {
@@ -124,32 +124,19 @@ const AllDoctors: React.FC = () => {
       </aside>
       <section className="doctors-list">
         {doctors.length > 0 ? (
-          <div className="all-doctors-grid">
+          <div className="featuredSection-doctors-grid">
             {doctors.map((doctor) => (
-              <div className="all-doctor-card" key={doctor.id}>
+              <div className="featured-doctor-card" onClick={() => handleDoctorClick(doctor)}  key={doctor.id}>
                 <img className="doctor-img" src={doctor.image} alt={doctor.name} />
-                <div className="alldoctor-info">
+                <div className="featured-doctor-info">
                   <span className="all-doc-status">
                     <span className="dot" />{doctor.available ? 'Available' : 'Unavailable'}
                   </span>
                   <h3>{doctor.name}</h3>
                   <p>{doctor.specialty}</p>
                   <p className="all_doc_experience">Experience: {doctor.experience}</p>
-                  <div className="all-button-group">
-                    <button 
-                      className="view-profile-btn"
-                      onClick={() => handleViewProfile(doctor.id)}
-                    >
-                      View Profile
-                    </button>
-                    <button 
-                      className="book-appointment-btn"
-                      onClick={() => handleBookAppointment(doctor.name)}
-                      disabled={!doctor.available || !currentUser}
-                    >
-                      Book Appointment
-                    </button>
-                  </div>
+                  
+                   
                 </div>
               </div>
             ))}

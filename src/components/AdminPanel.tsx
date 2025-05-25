@@ -335,8 +335,9 @@ const AdminPanel: React.FC = () => {
                   <option value="Endocrinologist">Endocrinologist</option>
                   <option value="Gastroenterologist">Gastroenterologist</option>
                   <option value="Neurologist">Neurologist</option>
-                  <option value="Obstetrician/Gynecologist">Obstetrician/Gynecologist</option>
-                  <option value="Ophthalmologist">Ophthalmologist</option>
+                  <option value="Obstetrician">Obstetrician</option>
+                  <option value="Gynecologist">Gynecologist</option>
+                  {/* <option value="Ophthalmologist">Ophthalmologist</option>
                   <option value="Orthopedist">Orthopedist</option>
                   <option value="Pediatrician">Pediatrician</option>
                   <option value="Psychiatrist">Psychiatrist</option>
@@ -348,7 +349,7 @@ const AdminPanel: React.FC = () => {
                   <option value="Surgeon">Surgeon</option>
                   <option value="Anesthesiologist">Anesthesiologist</option>
                   <option value="Radiologist">Radiologist</option>
-                  <option value="Pathologist">Pathologist</option>
+                  <option value="Pathologist">Pathologist</option> */}
                 </select>
               </div>
 

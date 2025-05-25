@@ -29,8 +29,17 @@ const Navbar: React.FC = () => {
     <nav className="navbar">
       <div className="navbar-left">
         <div className="logo">
-       
-          <span className="logo-text"><a href="/"><img src="../public/favicon.jpeg" alt="" />HealPoint</a></span>
+         <a href="/"> <img 
+            src="./healpoint_logo.png" 
+            alt="HealPoint Logo" 
+            className="logo-image"
+            onError={(e) => {
+              console.error('Error loading image:', e);
+              const img = e.target as HTMLImageElement;
+              console.log('Attempted image source:', img.src);
+            }}
+          /></a>
+          <span className="logo-text">HealPoint</span>
         </div>
         <div className="nav-links desktop-nav">
           <Link to="/" className={`nav-link${location.pathname === '/' ? ' active' : ''}`}>Home</Link>

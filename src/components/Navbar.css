@@ -25,9 +25,10 @@
   text-decoration: none;
 }
 
-.logo-icon {
-  font-size: 1.7rem;
-  color: var(--primary-color);
+.logo-image {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
 }
 
 .logo-text {
@@ -416,6 +417,10 @@
   .navbar {
     padding: 10px 20px;
     position: relative;
+  }
+
+  .logo-image {
+    height: 32px;
   }
 
   .logo-text {
