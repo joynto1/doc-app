@@ -11,6 +11,7 @@ import { TIME_SLOTS, TimeSlot } from '../config/timeSlots';
 interface LocationState {
   doctorName?: string;
   doctorId?: string;
+  doctorSpecialty?: string;
   date?: { day: string; date: string };
   time?: string;
 }
@@ -37,7 +38,7 @@ function getNextDateString(day: string, dateNum: string): string {
 const Appointment: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { doctorName, doctorId, date, time } = (location.state as LocationState) || {};
+  const { doctorName, doctorId, doctorSpecialty, date, time } = (location.state as LocationState) || {};
 
   const { currentUser } = useAuth();
 
@@ -90,6 +91,7 @@ const Appointment: React.FC = () => {
           phone,
           doctorName,
           doctorId,
+          doctorSpecialty,
           date: selectedDate,
           time: selectedTime,
           reason,

@@ -15,6 +15,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AdminProtectedRoute from './components/AdminProtectedRoute';
 import DoctorProfile from './components/DoctorProfile';
 import DoctorList from './components/DoctorList';
+import UserProfile from './pages/UserProfile';
+import MyBookAppointments from './pages/MyBookAppointments';
 import { AuthProvider } from './contexts/AuthContext';
 import './App.css';
 
@@ -47,6 +49,22 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Appointment />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <UserProfile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/my-appointments"
+                element={
+                  <ProtectedRoute>
+                    <MyBookAppointments />
                   </ProtectedRoute>
                 }
               />

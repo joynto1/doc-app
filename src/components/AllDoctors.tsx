@@ -163,7 +163,7 @@ const AllDoctors: React.FC = () => {
                   <img className="all-doctor-img" src={doctor.image} alt={doctor.name} />
                   <div className="all-doctor-info">
                     <span className="all-doc-status">
-                      <span className="dot" />{doctor.available ? 'Available' : 'Unavailable'}
+                      <span className="dott" />{doctor.available ? 'Available' : 'Unavailable'}
                     </span>
                     <h3>{doctor.name}</h3>
                     <p>{doctor.specialty}</p>

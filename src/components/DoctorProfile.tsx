@@ -72,6 +72,7 @@ const DoctorProfile: React.FC = () => {
         state: {
           doctorName: doctor.name,
           doctorId: doctor.id,
+          doctorSpecialty: doctor.specialty,
           date: DATES[selectedDate],
           time: TIME_SLOTS[selectedTime].time,
         },
@@ -97,7 +98,7 @@ const DoctorProfile: React.FC = () => {
         <div className="profile-info-new">
           <div className="profile-title-row">
             <h1 className="profile-name">{doctor.name} <span className="verified-icon" title="Verified">{/* blue check SVG */}<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#2563eb"/><path d="M6 10.5L9 13.5L14 8.5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span></h1>
-            <div className="profile-meta">MBBS - {doctor.specialty} <span className="profile-years">• Experience : {doctor.experience} Years</span></div>
+            <div className="profile-meta">MBBS - {doctor.specialty} <span className="profile-years">• Experience : {doctor.experience} </span></div>
           </div>
           <div className="profile-about-row">
             <div className="profile-about-label">About:</div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase/config';
 import { collection, addDoc, getDocs, deleteDoc, doc, updateDoc, query, where } from 'firebase/firestore';
@@ -60,6 +60,7 @@ const AdminPanel: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'doctors' | 'appointments'>('doctors');
+  const [selectedDate, setSelectedDate] = useState<string>('');
   const [newDoctor, setNewDoctor] = useState<Doctor>({
     name: '',
     specialty: '',
@@ -74,10 +75,39 @@ const AdminPanel: React.FC = () => {
   const [loadingAppointments, setLoadingAppointments] = useState(true);
   const [actionDone, setActionDone] = useState<{id: string, action: string} | null>(null);
   const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchDoctors();
     fetchAppointments();
+  }, []);
+
+  // Add click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.date-select-container')) {
+        setShowCalendar(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Add click outside handler for dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const fetchDoctors = async () => {
@@ -226,6 +256,19 @@ const AdminPanel: React.FC = () => {
     }
   };
 
+  const handleDeleteAppointment = async (appointmentId: string) => {
+    if (window.confirm('Are you sure you want to delete this appointment?')) {
+      try {
+        await deleteDoc(doc(db, 'appointments', appointmentId));
+        setActionDone({ id: appointmentId, action: 'deleted' });
+        setTimeout(() => setActionDone(null), 2000);
+        fetchAppointments();
+      } catch (err) {
+        alert('Failed to delete appointment.');
+      }
+    }
+  };
+
   const handleSignOut = () => {
     localStorage.removeItem('isAdmin');
     navigate('/admin-login');
@@ -274,6 +317,64 @@ const AdminPanel: React.FC = () => {
     }
   };
 
+  // Add this new function to filter appointments by date
+  const getFilteredAppointments = () => {
+    if (!selectedDate) return appointments;
+    return appointments.filter(app => app.date === selectedDate);
+  };
+
+  // Function to get days in month
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDayOfMonth = new Date(year, month, 1).getDay();
+    return { daysInMonth, firstDayOfMonth };
+  };
+
+  // Function to generate calendar days
+  const generateCalendarDays = () => {
+    const { daysInMonth, firstDayOfMonth } = getDaysInMonth(currentMonth);
+    const days = [];
+    
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < firstDayOfMonth; i++) {
+      days.push(<div key={`empty-${i}`} className="calendar-day disabled"></div>);
+    }
+    
+    // Add days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+      const dateString = date.toISOString().split('T')[0];
+      const isToday = new Date().toDateString() === date.toDateString();
+      const isSelected = selectedDate === dateString;
+      const hasAppointments = appointments.some(app => app.date === dateString);
+      
+      days.push(
+        <div
+          key={day}
+          className={`calendar-day ${isToday ? 'today' : ''} ${isSelected ? 'selected' : ''} ${hasAppointments ? 'has-appointments' : ''}`}
+          onClick={() => setSelectedDate(dateString)}
+        >
+          {day}
+        </div>
+      );
+    }
+    
+    return days;
+  };
+
+  // Function to navigate months
+  const navigateMonth = (direction: 'prev' | 'next') => {
+    const newMonth = new Date(currentMonth);
+    if (direction === 'prev') {
+      newMonth.setMonth(newMonth.getMonth() - 1);
+    } else {
+      newMonth.setMonth(newMonth.getMonth() + 1);
+    }
+    setCurrentMonth(newMonth);
+  };
+
   if (loading) {
     return <div className="loading">Loading admin panel...</div>;
   }
@@ -282,9 +383,11 @@ const AdminPanel: React.FC = () => {
     <div className="admin-panel">
       <div className="admin-header">
         <h1>Admin Panel</h1>
-        <button className="signout-btn" onClick={handleSignOut}>
-          Sign Out
-        </button>
+        <div className="admin-actions">
+          <button className="signout-btn" onClick={handleSignOut}>
+            Sign Out
+          </button>
+        </div>
       </div>
       
       {error && <div className="error-message">{error}</div>}
@@ -450,7 +553,7 @@ const AdminPanel: React.FC = () => {
                   }}
                 >
                   Cancel Edit
-                </button>
+                </button> 
               )}
             </form>
           </section>
@@ -499,6 +602,71 @@ const AdminPanel: React.FC = () => {
       ) : (
         <section className="appointments-section">
           <h2>Appointments</h2>
+          <div className="date-select-container">
+            <div className="date-select-header">
+              <div className="date-select-icon">📅</div>
+              <h3 className="date-select-title">Filter by Date</h3>
+            </div>
+            <div className="date-select-wrapper">
+              <input
+                type="text"
+                className="date-select-input"
+                value={selectedDate ? new Date(selectedDate).toLocaleDateString() : ''}
+                onClick={() => setShowCalendar(true)}
+                readOnly
+                placeholder="Select a date"
+              />
+              <div className={`calendar-popup ${showCalendar ? 'show' : ''}`}>
+                <div className="calendar-header">
+                  <div className="calendar-nav">
+                    <button 
+                      className="calendar-nav-btn"
+                      onClick={() => navigateMonth('prev')}
+                    >
+                      ←
+                    </button>
+                    <span>{currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}</span>
+                    <button 
+                      className="calendar-nav-btn"
+                      onClick={() => navigateMonth('next')}
+                    >
+                      →
+                    </button>
+                  </div>
+                </div>
+                
+                <div className="calendar-grid">
+                  {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
+                    <div key={day} className="calendar-weekday">{day}</div>
+                  ))}
+                </div>
+                
+                <div className="calendar-days">
+                  {generateCalendarDays()}
+                </div>
+              </div>
+            </div>
+            <div className="date-select-actions">
+              <button 
+                className="date-select-btn date-select-clear"
+                onClick={() => {
+                  setSelectedDate('');
+                  setShowCalendar(false);
+                }}
+              >
+                Clear Filter
+              </button>
+              <button 
+                className="date-select-btn date-select-apply"
+                onClick={() => {
+                  setShowCalendar(false);
+                }}
+              >
+                Apply Filter
+              </button>
+            </div>
+          </div>
+          
           {loadingAppointments ? (
             <div>Loading...</div>
           ) : appointments.length === 0 ? (
@@ -519,7 +687,7 @@ const AdminPanel: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {appointments
+                {getFilteredAppointments()
                   .filter((app: Appointment) => app.status !== 'cancelled')
                   .map((app: Appointment, index: number) => {
                     // Format date for display
@@ -559,6 +727,25 @@ const AdminPanel: React.FC = () => {
                                 </button>
                               </>
                             )
+                          ) : app.status === 'confirmed' ? (
+                            <button
+                              className="delete-btn"
+                              onClick={() => handleDeleteAppointment(app.id!)}
+                              style={{
+                                background: '#ef4444',
+                                color: '#fff',
+                                border: 'none',
+                                padding: '0.3rem 0.6rem',
+                                borderRadius: '6px',
+                                cursor: 'pointer',
+                                fontWeight: '600',
+                                fontSize: '0.75rem',
+                                transition: 'background 0.2s, box-shadow 0.2s',
+                                boxShadow: '0 2px 6px rgba(239,68,68,0.08)'
+                              }}
+                            >
+                              Delete
+                            </button>
                           ) : (
                             <span style={{ color: '#888' }}>—</span>
                           )}
