@@ -18,7 +18,10 @@ const AdminLogin = () => {
       if (email === 'admin@gmail.com' && password === 'admin') {
         // Store admin authentication state
         localStorage.setItem('isAdmin', 'true');
-        navigate('/admin');
+        // Ensure the state is set before navigation
+        setTimeout(() => {
+          navigate('/admin-panel');
+        }, 0);
       } else {
         setError('Invalid admin credentials');
       }

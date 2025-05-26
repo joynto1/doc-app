@@ -38,8 +38,8 @@ const Navbar: React.FC = () => {
               const img = e.target as HTMLImageElement;
               console.log('Attempted image source:', img.src);
             }}
-          /></a>
-          <span className="logo-text">HealPoint</span>
+          /><span className="logo-text text-blue ">HealPoint</span></a>
+          
         </div>
         <div className="nav-links desktop-nav">
           <Link to="/" className={`nav-link${location.pathname === '/' ? ' active' : ''}`}>Home</Link>

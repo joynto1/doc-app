@@ -6,7 +6,7 @@ const Footer: React.FC = () => {
     <footer className="footer">
       <div className="footer-content">
         <div className="footer-section">
-          <h3>Doctor Appointment Portal</h3>
+          <h3>HealPoint</h3>
           <p>Your trusted partner in healthcare management.</p>
         </div>
         <div className="footer-section">
@@ -20,7 +20,7 @@ const Footer: React.FC = () => {
         </div>
         <div className="footer-section">
           <h4>Contact Us</h4>
-          <p>Email: info@doctorappointmentportal.com</p>
+          <p>Email: info@HealPoint.com</p>
           <p>Phone: (+880) 182456-7890</p>
         </div>
         <div className="footer-section">
@@ -33,7 +33,7 @@ const Footer: React.FC = () => {
         </div>
       </div>
       <div className="footer-bottom">
-        <p>&copy; 2025 Doctor Appointment Portal . All rights reserved.</p>
+        <p>&copy; 2025 HealPoint . All rights reserved.</p>
       </div>
     </footer>
   );

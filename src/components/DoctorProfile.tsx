@@ -151,6 +151,10 @@ const DoctorProfile: React.FC = () => {
             <div className="related-doctor-card clickable" key={relDoc.id} onClick={() => handleViewProfile(relDoc.id)}>
               <img className="related-doctor-img" src={relDoc.image} alt={relDoc.name} />
               <div className="related-doctor-info">
+                <div className={`related-doctor-status ${relDoc.available ? 'available' : 'unavailable'}`}>
+                  <span className="status-dot"></span>
+                  {relDoc.available ? 'Available' : 'Unavailable'}
+                </div>
                 <div className="related-doctor-name">{relDoc.name}</div>
                 <div className="related-doctor-specialty">{relDoc.specialty}</div>
               </div>

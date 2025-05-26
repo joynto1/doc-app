@@ -11,7 +11,10 @@
   z-index: 1000;
   transition: box-shadow 0.2s;
 }
-
+.logo a{
+  display: flex;
+  align-items: center;
+}
 .navbar-left {
   display: flex;
   align-items: center;
@@ -438,7 +441,13 @@
   .user-info {
     display: none;
   }
-
+  .logo a{
+    display: flex;
+    align-items: center;
+  }
+.logo-image{
+  width: 50px;
+}
   .mobile-nav-link,
   .admin-link,
   .create-account-link {

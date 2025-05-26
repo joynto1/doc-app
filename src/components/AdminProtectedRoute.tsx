@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
 interface AdminProtectedRouteProps {
@@ -6,9 +6,29 @@ interface AdminProtectedRouteProps {
 }
 
 const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) => {
-  const isAdmin = localStorage.getItem('isAdmin') === 'true';
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
-  if (!isAdmin) {
+  useEffect(() => {
+    const checkAuth = () => {
+      const isAdmin = localStorage.getItem('isAdmin') === 'true';
+      setIsAuthenticated(isAdmin);
+    };
+    
+    checkAuth();
+    // Add event listener for storage changes
+    window.addEventListener('storage', checkAuth);
+    
+    return () => {
+      window.removeEventListener('storage', checkAuth);
+    };
+  }, []);
+
+  if (isAuthenticated === null) {
+    // Still checking authentication
+    return null;
+  }
+
+  if (!isAuthenticated) {
     // Redirect to admin login if not authenticated as admin
     return <Navigate to="/admin-login" replace />;
   }
