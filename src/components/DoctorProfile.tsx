@@ -22,8 +22,8 @@ const DoctorProfile: React.FC = () => {
   const [doctor, setDoctor] = useState<Doctor | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedDate, setSelectedDate] = useState(6); // Default to last (FRI 30)
-  const [selectedTime, setSelectedTime] = useState(4); // Default to 12:00 pm
+  const [selectedDate, setSelectedDate] = useState(0); // Default to first available date
+  const [selectedTime, setSelectedTime] = useState(-1); // Default to no time selected
   const [relatedDoctors, setRelatedDoctors] = useState<Doctor[]>([]);
 
   useEffect(() => {

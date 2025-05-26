@@ -24,12 +24,23 @@ export const TIME_SLOTS: TimeSlot[] = [
   { id: '17', time: '05:00 PM', available: true },
 ];
 
-export const DATES = [
-  { day: 'SAT', date: '24' },
-  { day: 'SUN', date: '25' },
-  { day: 'MON', date: '26' },
-  { day: 'TUE', date: '27' },
-  { day: 'WED', date: '28' },
-  { day: 'THU', date: '29' },
-  { day: 'FRI', date: '30' },
-]; 
+// Function to get the next 7 days starting from today
+export const getNextSevenDays = () => {
+  const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+  const dates = [];
+  const today = new Date();
+  
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    dates.push({
+      day: days[date.getDay()],
+      date: date.getDate().toString()
+    });
+  }
+  
+  return dates;
+};
+
+// Export the dynamic dates
+export const DATES = getNextSevenDays(); 
