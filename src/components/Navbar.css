@@ -9,7 +9,10 @@
   top: 0;
   z-index: 1000;
 }
-
+.logo .logo-image{
+  width: 140px;
+  border-radius: 15px;
+}
 .navbar-brand h1 {
   margin: 0;
   color: #3b82f6;
@@ -50,14 +53,12 @@
 }
 
 .dropdown-menu .profile-name {
-  display: flex;
-  border-radius: 10px;
-  justify-content: center;
-  background-color:blue;
-  color: #fff;
+  text-transform: uppercase;
+  color: blue;
   font-weight: 500;
   width: 100%;
-  overflow: hidden;
+  font-size: 20px;
+  margin-top: 15px;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -140,7 +141,9 @@
   .profile-name {
     display: none;
   }
-
+  .profile-dropdown{
+    display: none;
+  }
   .dropdown-menu {
     position: fixed;
     top: auto;
@@ -181,11 +184,7 @@
   text-decoration: none;
 }
 
-.logo-image {
-  height: 40px;
-  width: auto;
-  object-fit: contain;
-}
+
 
 .logo-text {
   font-size: 1.3rem;
@@ -325,6 +324,7 @@
   .nav-links {
     gap: 1rem;
     margin-left: 1rem;
+    
   }
 }
 
@@ -336,11 +336,14 @@
   .navbar-left {
     gap: 1rem;
   }
+  
+.profile-button .profile-image{
+  display: none;
+}
   .nav-links {
     display: none;
     position: absolute;
     top: 60px;
-  
     left: 0;
     width: 100vw;
     background: var(--surface-color);
@@ -352,7 +355,10 @@
   }
   .nav-links.open {
     display: flex;
+    
   }
+
+ 
   .menu-toggle {
     display: block;
   }
@@ -475,7 +481,7 @@
   position: absolute;
   top: 0;
   right: 0;
-  width: 280px;
+  width: 50%;
   height: 100%;
   background-color: white;
   padding: 80px 20px 20px;
@@ -572,8 +578,9 @@
     position: relative;
   }
 
-  .logo-image {
-    height: 32px;
+.a_logo_folder{
+    width: 10px;
+   
   }
 
   .logo-text {
@@ -595,9 +602,7 @@
     display: flex;
     align-items: center;
   }
-.logo-image{
-  width: 50px;
-}
+
   .mobile-nav-link,
   .admin-link,
   .create-account-link {
@@ -626,4 +631,32 @@
   font-weight: 500;
   background: none;
   border-radius: 0;
+}
+
+.navbar-avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border: 2px solid #e5e7eb;
+}
+
+.mobile-avatar-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border: 2px solid #e5e7eb;
 } 

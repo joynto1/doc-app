@@ -177,9 +177,18 @@ button, .btn-primary, .btn-secondary {
 }
 
 /* Headings & Text */
-h1, h2, h3, h4, h5, h6 {
+h1, h4, h5, h6 {
   color: var(--text-primary);
   font-weight: 700;
+}
+h2{
+  color:#64748b
+}
+.specialty{
+  color:#0c3b7ed2
+}
+h3{
+  color: #3898db;
 }
 
 body, p, span, label, input, textarea {
@@ -274,7 +283,7 @@ body, p, span, label, input, textarea {
     padding: 1rem !important;
     margin-bottom: 0.5rem;
   }
-  img, .hero-image img, .about-image img, .contact-image img {
+   .hero-image img, .about-image img, .contact-image img {
     max-width: 100% !important;
     height: auto !important;
     display: block;

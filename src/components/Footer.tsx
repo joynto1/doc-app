@@ -5,7 +5,7 @@ const Footer: React.FC = () => {
   return (
     <footer className="footer">
       <div className="footer-content">
-        <div className="footer-section">
+        <div className="footer-section-1">
           <h3>HealPoint</h3>
           <p>Your trusted partner in healthcare management.</p>
         </div>

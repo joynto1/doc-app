@@ -48,7 +48,7 @@ interface Appointment {
   reason: string;
   date: string;
   time: string;
-  status: 'pending' | 'confirmed' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
   createdAt: Date;
   phone?: string;
 }
@@ -243,7 +243,12 @@ const AdminPanel: React.FC = () => {
     }
   };
 
-  const handleUpdateAppointmentStatus = async (appointmentId: string, newStatus: 'confirmed' | 'cancelled') => {
+  const handleUpdateAppointmentStatus = async (appointmentId: string, newStatus: 'confirmed' | 'cancelled' | 'completed') => {
+    if (newStatus === 'completed') {
+      if (!window.confirm('Are you sure you want to mark this appointment as completed?')) {
+        return;
+      }
+    }
     try {
       await updateDoc(doc(db, 'appointments', appointmentId), {
         status: newStatus
@@ -728,26 +733,31 @@ const AdminPanel: React.FC = () => {
                               </>
                             )
                           ) : app.status === 'confirmed' ? (
+                            actionDone && actionDone.id === app.id ? (
+                              <span style={{ color: 'green', fontWeight: 600 }}>Done</span>
+                            ) : (
+                              <div className="action-buttons">
+                                <button
+                                  className="done-btn"
+                                  onClick={() => handleUpdateAppointmentStatus(app.id!, 'completed')}
+                                >
+                                  Done
+                                </button>
+                                <button
+                                  className="delete-btn"
+                                  onClick={() => handleDeleteAppointment(app.id!)}
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            )
+                          ) : (
                             <button
                               className="delete-btn"
                               onClick={() => handleDeleteAppointment(app.id!)}
-                              style={{
-                                background: '#ef4444',
-                                color: '#fff',
-                                border: 'none',
-                                padding: '0.3rem 0.6rem',
-                                borderRadius: '6px',
-                                cursor: 'pointer',
-                                fontWeight: '600',
-                                fontSize: '0.75rem',
-                                transition: 'background 0.2s, box-shadow 0.2s',
-                                boxShadow: '0 2px 6px rgba(239,68,68,0.08)'
-                              }}
                             >
                               Delete
                             </button>
-                          ) : (
-                            <span style={{ color: '#888' }}>—</span>
                           )}
                         </td>
                       </tr>

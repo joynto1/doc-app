@@ -40,13 +40,17 @@ const Navbar: React.FC = () => {
     navigate('/login');
   };
 
+  const getInitials = (name: string) => {
+    return name.charAt(0).toUpperCase();
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-left">
         <div className="logo">
-          <a href="/">
+          <a href="/"  >
             <img 
-              src="./healpoint_logo.png" 
+              src="./logo_healPoint.jpg" 
               alt="HealPoint Logo" 
               className="logo-image"
               onError={(e) => {
@@ -55,7 +59,6 @@ const Navbar: React.FC = () => {
                 console.log('Attempted image source:', img.src);
               }}
             />
-            <span className="logo-text text-blue">HealPoint</span>
           </a>
         </div>
         <div className="nav-links desktop-nav">
@@ -79,16 +82,14 @@ const Navbar: React.FC = () => {
                 className="profile-button"
                 onClick={() => setShowDropdown(!showDropdown)}
               >
-                <img 
-                  src={user.photoURL || './avatar.png'} 
-                  className="profile-image"
-                />
-              
+                <div className="navbar-avatar-circle">
+                  {getInitials(user.displayName || user.email || '')}
+                </div>
               </button>
               
               {showDropdown && (
                 <div className="dropdown-menu">
-                    <span className="profile-name">{user.displayName}</span>
+                   
                   <button 
                     className="dropdown-item"
                     onClick={() => {
@@ -97,7 +98,7 @@ const Navbar: React.FC = () => {
                     }}
                   >
                     <span className="dropdown-icon">👤</span>
-                    Profile
+                    <span className="profile-name">{user.displayName}</span>
                   </button>
                   <button 
                     className="dropdown-item"
@@ -171,11 +172,9 @@ const Navbar: React.FC = () => {
                   </Link>
                 )}
                 <div className="mobile-user-info">
-                  <img 
-                    src={user.photoURL || '/default-avatar.png'} 
-                    alt={user.displayName || 'User'}
-                    className="mobile-profile-image"
-                  />
+                  <div className="mobile-avatar-circle">
+                    {getInitials(user.displayName || user.email || '')}
+                  </div>
                   <span className="user-name">{user.displayName || user.email}</span>
                 </div>
                 <Link to="/profile" className="mobile-nav-link" onClick={toggleMobileMenu}>

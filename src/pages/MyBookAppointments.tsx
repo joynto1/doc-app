@@ -112,6 +112,35 @@ const MyBookAppointments: React.FC = () => {
     }
   };
 
+  const formatTime = (time: string) => {
+    try {
+      const [hours, minutes] = time.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const hour12 = hour % 12 || 12;
+      return `${hour12}:${minutes} ${ampm}`;
+    } catch (error) {
+      console.error('Error formatting time:', error);
+      return time;
+    }
+  };
+
+  const convertTo24Hour = (time12h: string) => {
+    try {
+      const [time, modifier] = time12h.split(' ');
+      let [hours, minutes] = time.split(':');
+      if (hours === '12') {
+        hours = modifier === 'PM' ? '12' : '00';
+      } else {
+        hours = modifier === 'PM' ? String(parseInt(hours) + 12) : hours;
+      }
+      return `${hours}:${minutes}`;
+    } catch (error) {
+      console.error('Error converting time:', error);
+      return time12h;
+    }
+  };
+
   const getStatusColor = (status: AppointmentStatus) => {
     switch (status) {
       case 'confirmed':
@@ -127,11 +156,12 @@ const MyBookAppointments: React.FC = () => {
 
   const handleEdit = (appointment: Appointment) => {
     setEditingAppointment(appointment);
+    const time12h = formatTime(appointment.time);
     setEditForm({
       doctorName: appointment.doctorName,
       doctorSpecialty: appointment.doctorSpecialty,
       reason: appointment.reason,
-      time: appointment.time,
+      time: time12h,
       date: appointment.date.toDate().toISOString().split('T')[0]
     });
   };
@@ -150,12 +180,13 @@ const MyBookAppointments: React.FC = () => {
     if (!editingAppointment) return;
 
     try {
+      const time24h = convertTo24Hour(editForm.time);
       const appointmentRef = doc(db, 'appointments', editingAppointment.id);
       await updateDoc(appointmentRef, {
         doctorName: editForm.doctorName,
         doctorSpecialty: editForm.doctorSpecialty,
         reason: editForm.reason,
-        time: editForm.time,
+        time: time24h,
         date: Timestamp.fromDate(new Date(editForm.date))
       });
 
@@ -167,7 +198,7 @@ const MyBookAppointments: React.FC = () => {
               doctorName: editForm.doctorName,
               doctorSpecialty: editForm.doctorSpecialty,
               reason: editForm.reason,
-              time: editForm.time,
+              time: time24h,
               date: Timestamp.fromDate(new Date(editForm.date))
             }
           : apt
@@ -221,22 +252,26 @@ const MyBookAppointments: React.FC = () => {
             <table className="appointments-table">
               <thead>
                 <tr>
+                  <th></th>
                   <th>Doctor</th>
+                
                   <th>Specialty</th>
                   <th>Date</th>
                   <th>Time</th>
                   <th>Status</th>
                   <th>Reason</th>
                   <th>Actions</th>
+                  
                 </tr>
               </thead>
               <tbody>
                 {appointments.map((appointment) => (
                   <tr key={appointment.id}>
+                    <td></td>
                     <td title={appointment.doctorName}>{appointment.doctorName}</td>
                     <td title={appointment.doctorSpecialty}>{appointment.doctorSpecialty}</td>
                     <td title={formatDate(appointment.date)}>{formatDate(appointment.date)}</td>
-                    <td title={appointment.time}>{appointment.time}</td>
+                    <td title={appointment.time}>{formatTime(appointment.time)}</td>
                     <td>
                       <span className={`status-badge ${getStatusColor(appointment.status)}`}>
                         {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
@@ -247,6 +282,11 @@ const MyBookAppointments: React.FC = () => {
                       <button 
                         className="edit-btn"
                         onClick={() => handleEdit(appointment)}
+                        disabled={appointment.status === 'confirmed'}
+                        style={{ 
+                          opacity: appointment.status === 'confirmed' ? 0.5 : 1,
+                          cursor: appointment.status === 'confirmed' ? 'not-allowed' : 'pointer'
+                        }}
                       >
                         Edit
                       </button>
@@ -298,9 +338,10 @@ const MyBookAppointments: React.FC = () => {
                 <div className="form-group">
                   <label>Time:</label>
                   <input
-                    type="time"
+                    type="text"
                     value={editForm.time}
                     onChange={(e) => setEditForm({ ...editForm, time: e.target.value })}
+                    placeholder="e.g., 2:30 PM"
                     required
                   />
                 </div>

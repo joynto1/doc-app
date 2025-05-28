@@ -12,10 +12,24 @@
   grid-template-columns: repeat(4, 1fr);
   gap: 2rem;
 }
+.footer-section-1{
+  margin-left: 25px;
+}
+.footer-section-1 h3{
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
 
+  color: #fff;
+}
+.footer-section-1 p {
+  color: #ccc;
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
 .footer-section h3 {
   font-size: 1.5rem;
   margin-bottom: 1rem;
+
   color: #fff;
 }
 
@@ -80,8 +94,9 @@
 @media (max-width: 768px) {
   .footer-content {
     grid-template-columns: repeat(2, 1fr);
-    
+     justify-items: center;
   }
+   
   .social-links{
     display: flex;
     flex-direction: column;

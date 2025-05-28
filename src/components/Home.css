@@ -55,22 +55,7 @@
   line-height: 1.6;
 }
 
-.book-btn {
-   
-  color: #fff;
-  border: none;
-  padding: 1rem 2rem;
-  border-radius: 20px;
-  font-size: 1.1rem;
-  font-weight: 900;
-  cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
-  box-shadow: 0 4px 16px rgba(34, 197, 94, 0.15);
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 0.5rem;
-}
+ 
 
 
 

@@ -94,17 +94,39 @@ const DoctorProfile: React.FC = () => {
   return (
     <div className="doctor-profile-main-container">
       <div className="doctor-profile-card-new">
+        <div className="profile-top-section">
         <img src={doctor.image} alt={doctor.name} className="profile-image-new" />
         <div className="profile-info-new">
           <div className="profile-title-row">
-            <h1 className="profile-name">{doctor.name} <span className="verified-icon" title="Verified">{/* blue check SVG */}<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="10" fill="#2563eb"/><path d="M6 10.5L9 13.5L14 8.5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span></h1>
-            <div className="profile-meta">MBBS - {doctor.specialty} <span className="profile-years">• Experience : {doctor.experience} </span></div>
+              <h1 className="profile-name">
+                {doctor.name} 
+                <span className="verified-icon" title="Verified">
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="10" cy="10" r="10" fill="#2563eb"/>
+                    <path d="M6 10.5L9 13.5L14 8.5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span>
+              </h1>
+              <div className="profile-meta">
+                MBBS - {doctor.specialty}
+              </div>
+            </div>
+            <div className="profile-experience">
+              Experience: {doctor.experience}
+            </div>
+            <div className="profile-fee">
+              Appointment fee: <span className="fee-amount">$50</span>
+            </div>
           </div>
+        </div>
+
+        <div className="profile-about-section">
           <div className="profile-about-row">
             <div className="profile-about-label">About:</div>
-            <div className="profile-about-text">{doctor.about || ` ${doctor.name} has a strong commitment to delivering comprehensive medical care, focusing on preventive medicine, early diagnosis, and effective treatment strategies.`}</div>
+            <div className="profile-about-text">
+              {doctor.about || `${doctor.name} has a strong commitment to delivering comprehensive medical care, focusing on preventive medicine, early diagnosis, and effective treatment strategies.`}
+            </div>
           </div>
-          <div className="profile-fee">Appointment fee: <span className="fee-amount">$50</span></div>
         </div>
       </div>
 

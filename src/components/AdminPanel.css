@@ -152,30 +152,216 @@
   gap: 0.5rem;
 }
 
-.action-btn {
+.action-column {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
   padding: 0.5rem;
+}
+
+.action-btn {
+  padding: 6px 12px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  flex: 1;
+  justify-content: center;
+  min-width: 120px;
 }
 
 .edit-btn {
-  background: #e7e9fd;
-  color: var(--primary-color);
-}
-
-.delete-btn {
-  background: #fee2e2;
-  color: var(--error-color);
+  background-color: #e7e9fd;
+  color: #4f46e5;
 }
 
 .edit-btn:hover {
-  background: #d1d5f9;
+  background-color: #d1d5f9;
+  transform: translateY(-1px);
+}
+
+.done-btn,
+.delete-btn {
+  padding: 0.5rem 1rem;
+  margin: 0;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 90px;
+  justify-content: center;
+  height: 36px;
+}
+
+.done-btn {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.done-btn:hover {
+  background-color: #bbf7d0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.done-btn:active {
+  transform: translateY(0);
+}
+
+.done-btn::before {
+  content: '✓';
+  font-size: 14px;
+}
+
+.delete-btn {
+  background-color: #fee2e2;
+  color: #dc2626;
 }
 
 .delete-btn:hover {
-  background: #fecaca;
+  background-color: #fecaca;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.delete-btn:active {
+  transform: translateY(0);
+}
+
+.delete-btn::before {
+  content: '🗑️';
+  font-size: 14px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .done-btn,
+  .delete-btn {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+    min-width: 80px;
+    height: 32px;
+  }
+  
+  .action-buttons {
+    gap: 0.25rem;
+  }
+}
+
+.confirm-btn {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.confirm-btn:hover {
+  background-color: #bbf7d0;
+  transform: translateY(-1px);
+}
+
+.cancel-btn {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.cancel-btn:hover {
+  background-color: #fecaca;
+  transform: translateY(-1px);
+}
+
+.action-btn:active {
+  transform: translateY(0);
+}
+
+.action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Add icons to buttons */
+.edit-btn::before {
+  content: '✏️';
+  font-size: 14px;
+}
+
+.confirm-btn::before {
+  content: '✓';
+  font-size: 14px;
+}
+
+.cancel-btn::before {
+  content: '✕';
+  font-size: 14px;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .action-column {
+    flex-direction: row;
+    gap: 4px;
+    padding: 0.25rem;
+  }
+
+  .action-btn {
+    width: auto;
+    padding: 8px;
+    font-size: 13px;
+    min-width: 100px;
+  }
+
+  .done-btn,
+  .delete-btn {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+    min-width: 80px;
+  }
+}
+
+/* Add hover effect for the entire row */
+.appointments-table tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Add transition for smooth hover effects */
+.appointments-table tr {
+  transition: background-color 0.2s ease;
+}
+
+/* Add a subtle border between rows */
+.appointments-table tr:not(:last-child) {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Style the action column header */
+.appointments-table th:last-child {
+  text-align: center;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+/* Add a subtle shadow to buttons on hover */
+.action-btn:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 768px) {
@@ -392,8 +578,7 @@
 
 .availability-btn,
 .featured-btn,
-.edit-btn,
-.delete-btn {
+.edit-btn {
   padding: 0.75rem;
   border: none;
   border-radius: 8px;
@@ -453,18 +638,6 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.delete-btn {
-  background: #fef2f2;
-  color: #991b1b;
-  border: 1px solid #fee2e2;
-}
-
-.delete-btn:hover {
-  background: #fee2e2;
-  transform: translateY(-2px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
 /* Add icons to buttons */
 .availability-btn::before {
   content: '●';
@@ -477,11 +650,6 @@
 
 .edit-btn::before {
   content: '✎';
-}
-
-.delete-btn::before {
-  content: '×';
-  font-size: 1.2em;
 }
 
 .loading {
@@ -678,7 +846,7 @@
 /* Column widths */
 .appointments-table th:nth-child(1),
 .appointments-table td:nth-child(1) {
-  width: 40px;
+  width:7%;
   text-align: center;
   font-weight: 600;
   color: #4b5563;
@@ -688,42 +856,42 @@
 
 .appointments-table th:nth-child(2),
 .appointments-table td:nth-child(2) {
-  width: 120px; /* Patient */
+  width: 15%; /* Patient */
 }
 
 .appointments-table th:nth-child(3),
 .appointments-table td:nth-child(3) {
-  width: 100px; /* Phone */
+  width: 15%; /* Phone */
 }
 
 .appointments-table th:nth-child(4),
 .appointments-table td:nth-child(4) {
-  width: 120px; /* Doctor */
+  width: 18%; /* Doctor */
 }
 
 .appointments-table th:nth-child(5),
 .appointments-table td:nth-child(5) {
-  width: 150px; /* Reason */
+  width: 20%; /* Reason */
 }
 
 .appointments-table th:nth-child(6),
 .appointments-table td:nth-child(6) {
-  width: 90px; /* Date */
+  width: 18%; /* Date */
 }
 
 .appointments-table th:nth-child(7),
 .appointments-table td:nth-child(7) {
-  width: 80px; /* Time */
+  width: 13%; /* Time */
 }
 
 .appointments-table th:nth-child(8),
 .appointments-table td:nth-child(8) {
-  width: 90px; /* Status */
+  width:13%; /* Status */
 }
 
 .appointments-table th:nth-child(9),
 .appointments-table td:nth-child(9) {
-  width: 100px; /* Actions */
+  width:30%; /* Actions */
 }
 
 .appointments-table td.status-pending {
@@ -1574,4 +1742,49 @@
 .save-profile-btn,
 .avatar-upload {
   display: none;
+}
+
+.done-btn {
+  background-color: #dcfce7;
+  color: #16a34a;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 90px;
+  justify-content: center;
+}
+
+.done-btn:hover {
+  background-color: #bbf7d0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.done-btn:active {
+  transform: translateY(0);
+}
+
+.done-btn::before {
+  content: '✓';
+  font-size: 14px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+@media (max-width: 768px) {
+  .action-buttons {
+    gap: 0.25rem;
+  }
 } 

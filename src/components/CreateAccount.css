@@ -3,81 +3,106 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: var(--background-color);
+  padding: 20px;
+  background-color: #f5f5f5;
 }
 
 .create-account-card {
-  background: var(--surface-color);
+  background: white;
   padding: 2rem;
-  border-radius: 8px;
-  box-shadow: var(--shadow-sm);
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
 }
 
 .create-account-card h2 {
-  margin: 0 0 0.5rem 0;
-  color: var(--text-primary);
   text-align: center;
+  color: #333;
+  margin-bottom: 0.5rem;
 }
 
 .subtitle {
-  color: var(--text-secondary);
   text-align: center;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.form-group {
   margin-bottom: 1.5rem;
 }
 
-.create-account-card label {
+.form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  color: var(--text-primary);
+  color: #333;
+  font-weight: 500;
 }
 
-.create-account-card input {
+.form-group input {
   width: 100%;
   padding: 0.75rem;
-  margin-bottom: 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
   font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.form-group input.error {
+  border-color: #dc3545;
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: #fff5f5;
+  border: 1px solid #ffcdd2;
+  border-radius: 4px;
 }
 
 .create-account-btn {
   width: 100%;
-  padding: 30px 20px;
-  background: var(--primary-color);
-  color: #fff;
+  padding: 0.75rem;
+  background-color: #007bff;
+  color: white;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: 5px;
   font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background-color 0.3s ease;
 }
 
 .create-account-btn:hover {
-  background: var(--primary-hover);
+  background-color: #0056b3;
+}
+
+.create-account-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 .login-link {
   text-align: center;
-  margin-top: 1rem;
-  color: var(--text-secondary);
+  margin-top: 1.5rem;
+  color: #666;
 }
 
 .login-link span {
-  color: var(--primary-color);
+  color: #007bff;
   cursor: pointer;
   text-decoration: underline;
 }
 
 .login-link span:hover {
-  color: var(--primary-hover);
-}
-
-.error-message {
-  color: var(--error-color);
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
+  color: #0056b3;
 }
 
 .success-message {

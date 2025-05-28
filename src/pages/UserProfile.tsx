@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, updateProfile, updateEmail } from 'firebase/auth';
+import { User, updateProfile, updateEmail, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import './UserProfile.css';
 
@@ -9,23 +9,23 @@ const UserProfile: React.FC = () => {
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [photoURL, setPhotoURL] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [password, setPassword] = useState('');
+  const [showPasswordInput, setShowPasswordInput] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       if (currentUser) {
+        console.log('Current user:', currentUser);
         setUser(currentUser);
         setDisplayName(currentUser.displayName || '');
         setEmail(currentUser.email || '');
         setPhoneNumber(currentUser.phoneNumber || '');
-        setPhotoURL(currentUser.photoURL || '');
       } else {
-        // If no user is logged in, redirect to login page
         navigate('/login', { state: { from: '/profile' } });
       }
     });
@@ -41,42 +41,74 @@ const UserProfile: React.FC = () => {
 
     try {
       if (!user) {
+        console.error('No user found');
         navigate('/login', { state: { from: '/profile' } });
         return;
       }
 
-      // Update profile
-      await updateProfile(user, {
-        displayName,
-        photoURL: photoURL || null
-      });
+      console.log('Starting profile update...');
+      console.log('Current email:', user.email);
+      console.log('New email:', email);
+      console.log('Current name:', user.displayName);
+      console.log('New name:', displayName);
 
-      // Update email if changed
+      // If email is being changed, we need to reauthenticate
       if (email !== user.email) {
-        await updateEmail(user, email);
+        console.log('Email change detected, requesting password...');
+        if (!password) {
+          setError('Please enter your password to update email');
+          setShowPasswordInput(true);
+          setLoading(false);
+          return;
+        }
+
+        try {
+          console.log('Attempting reauthentication...');
+          // Reauthenticate user
+          const credential = EmailAuthProvider.credential(user.email!, password);
+          await reauthenticateWithCredential(user, credential);
+          console.log('Reauthentication successful');
+          
+          // Update email
+          console.log('Updating email...');
+          await updateEmail(user, email);
+          console.log('Email updated successfully');
+        } catch (err: any) {
+          console.error('Error during email update:', err);
+          if (err.code === 'auth/wrong-password') {
+            setError('Incorrect password');
+          } else {
+            setError(err.message || 'Failed to update email');
+          }
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Update profile name
+      console.log('Updating profile name...');
+      await updateProfile(user, {
+        displayName
+      });
+      console.log('Profile name updated successfully');
+
+      // Force refresh the user object
+      const updatedUser = auth.currentUser;
+      if (updatedUser) {
+        setUser(updatedUser);
+        setDisplayName(updatedUser.displayName || '');
+        setEmail(updatedUser.email || '');
       }
 
       setSuccess('Profile updated successfully!');
       setIsEditing(false);
+      setShowPasswordInput(false);
+      setPassword('');
     } catch (err: any) {
+      console.error('Error during profile update:', err);
       setError(err.message || 'Failed to update profile');
-      // If the error is due to authentication, redirect to login
-      if (err.code === 'auth/requires-recent-login') {
-        navigate('/login', { state: { from: '/profile' } });
-      }
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPhotoURL(reader.result as string);
-      };
-      reader.readAsDataURL(file);
     }
   };
 
@@ -91,6 +123,10 @@ const UserProfile: React.FC = () => {
     );
   }
 
+  const getInitials = (name: string) => {
+    return name.charAt(0).toUpperCase();
+  };
+
   return (
     <div className="profile-container">
       <div className="profile-card">
@@ -101,25 +137,9 @@ const UserProfile: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="profile-form">
           <div className="profile-image-section">
-            <img 
-              src={photoURL || './healpoint_logo.png'} 
-              alt="Profile" 
-              className="profile-image-large"
-            />
-            {isEditing && (
-              <div className="image-upload">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="file-input"
-                  id="profile-image"
-                />
-                <label htmlFor="profile-image" className="upload-btn">
-                  Choose Image
-                </label>
-              </div>
-            )}
+            <div className="avatar-circle">
+              {getInitials(displayName)}
+            </div>
           </div>
 
           <div className="form-group">
@@ -130,7 +150,7 @@ const UserProfile: React.FC = () => {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Enter your name"
-              disabled={!isEditing}
+              disabled={!isEditing || loading}
               required
             />
           </div>
@@ -143,51 +163,62 @@ const UserProfile: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              disabled={!isEditing}
+              disabled={!isEditing || loading}
               required
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="phoneNumber">Phone Number</label>
-            <input
-              type="tel"
-              id="phoneNumber"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder="Enter your phone number"
-              disabled={!isEditing}
-              required
-            />
-          </div>
+          {showPasswordInput && (
+            <div className="form-group">
+              <label htmlFor="password">Current Password</label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your current password"
+                disabled={loading}
+                required
+              />
+            </div>
+          )}
 
           <div className="button-group">
-            {isEditing ? (
+            {!isEditing ? (
+              <button
+                type="button"
+                onClick={() => setIsEditing(true)}
+                className="edit-button"
+              >
+                Edit Profile
+              </button>
+            ) : (
               <>
-                <button 
-                  type="submit" 
-                  className="submit-btn"
+                <button
+                  type="submit"
                   disabled={loading}
+                  className="save-button"
                 >
                   {loading ? 'Saving...' : 'Save Changes'}
                 </button>
-                <button 
-                  type="button" 
-                  className="cancel-btn"
-                  onClick={() => setIsEditing(false)}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditing(false);
+                    setShowPasswordInput(false);
+                    setPassword('');
+                    // Reset form values to current user data
+                    if (user) {
+                      setDisplayName(user.displayName || '');
+                      setEmail(user.email || '');
+                    }
+                  }}
+                  className="cancel-button"
                   disabled={loading}
                 >
                   Cancel
                 </button>
               </>
-            ) : (
-              <button 
-                type="button" 
-                className="edit-btn"
-                onClick={() => setIsEditing(true)}
-              >
-                Edit Profile
-              </button>
             )}
           </div>
         </form>

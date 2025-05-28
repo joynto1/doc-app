@@ -41,55 +41,11 @@
   padding: 1rem;
   text-align: left;
   border-bottom: 1px solid #e5e7eb;
-  white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
 }
 
 /* Column widths */
-.appointments-table th:nth-child(1),
-.appointments-table td:nth-child(1) {
-  width: 20%;
-  min-width: 150px;
-}
 
-.appointments-table th:nth-child(2),
-.appointments-table td:nth-child(2) {
-  width: 15%;
-  min-width: 120px;
-}
-
-.appointments-table th:nth-child(3),
-.appointments-table td:nth-child(3) {
-  width: 20%;
-  min-width: 180px;
-}
-
-.appointments-table th:nth-child(4),
-.appointments-table td:nth-child(4) {
-  width: 10%;
-  min-width: 100px;
-}
-
-.appointments-table th:nth-child(5),
-.appointments-table td:nth-child(5) {
-  width: 12%;
-  min-width: 120px;
-}
-
-.appointments-table th:nth-child(6),
-.appointments-table td:nth-child(6) {
-  width: 15%;
-  min-width: 150px;
-}
-
-.appointments-table th:nth-child(7),
-.appointments-table td:nth-child(7) {
-  width: 10%;
-  min-width: 100px;
-  text-align: center;
-  padding: 0.75rem;
-}
 
 .appointments-table th {
   background-color: #f9fafb;
@@ -143,7 +99,6 @@
 }
 
 .status-confirmed {
-  background-color: #dcfce7;
   color: #16a34a;
 }
 
@@ -353,5 +308,6 @@
 .appointments-table td:last-child {
   padding: 0.75rem;
   text-align: center;
+justify-items: end;
   vertical-align: middle;
 } 
