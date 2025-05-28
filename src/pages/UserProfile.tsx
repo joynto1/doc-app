@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, updateProfile, updateEmail, EmailAuthProvider, reauthenticateWithCredential, deleteUser } from 'firebase/auth';
-import { auth, storage } from '../firebaseConfig';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { User, updateProfile, updateEmail, EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
+import { auth } from '../firebaseConfig';
 import './UserProfile.css';
 
 const UserProfile: React.FC = () => {
@@ -16,9 +15,6 @@ const UserProfile: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [password, setPassword] = useState('');
   const [showPasswordInput, setShowPasswordInput] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [profileImage, setProfileImage] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,7 +25,6 @@ const UserProfile: React.FC = () => {
         setDisplayName(currentUser.displayName || '');
         setEmail(currentUser.email || '');
         setPhoneNumber(currentUser.phoneNumber || '');
-        setProfileImage(currentUser.photoURL);
       } else {
         navigate('/login', { state: { from: '/profile' } });
       }
@@ -37,60 +32,6 @@ const UserProfile: React.FC = () => {
 
     return () => unsubscribe();
   }, [navigate]);
-
-  const validateEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
-
-  const validatePhoneNumber = (phone: string) => {
-    return /^\+?[\d\s-]{10,}$/.test(phone);
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !user) return;
-
-    try {
-      setLoading(true);
-      const storageRef = ref(storage, `profile_images/${user.uid}`);
-      await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(storageRef);
-      
-      await updateProfile(user, {
-        photoURL: downloadURL
-      });
-      
-      setProfileImage(downloadURL);
-      setSuccess('Profile picture updated successfully!');
-    } catch (err: any) {
-      setError(err.message || 'Failed to upload profile picture');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteAccount = async () => {
-    if (!user || !password) {
-      setError('Please enter your password to delete account');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const credential = EmailAuthProvider.credential(user.email!, password);
-      await reauthenticateWithCredential(user, credential);
-      await deleteUser(user);
-      navigate('/');
-    } catch (err: any) {
-      if (err.code === 'auth/wrong-password') {
-        setError('Incorrect password');
-      } else {
-        setError(err.message || 'Failed to delete account');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,20 +46,15 @@ const UserProfile: React.FC = () => {
         return;
       }
 
-      if (!validateEmail(email)) {
-        setError('Please enter a valid email address');
-        setLoading(false);
-        return;
-      }
-
-      if (phoneNumber && !validatePhoneNumber(phoneNumber)) {
-        setError('Please enter a valid phone number');
-        setLoading(false);
-        return;
-      }
+      console.log('Starting profile update...');
+      console.log('Current email:', user.email);
+      console.log('New email:', email);
+      console.log('Current name:', user.displayName);
+      console.log('New name:', displayName);
 
       // If email is being changed, we need to reauthenticate
       if (email !== user.email) {
+        console.log('Email change detected, requesting password...');
         if (!password) {
           setError('Please enter your password to update email');
           setShowPasswordInput(true);
@@ -127,10 +63,18 @@ const UserProfile: React.FC = () => {
         }
 
         try {
+          console.log('Attempting reauthentication...');
+          // Reauthenticate user
           const credential = EmailAuthProvider.credential(user.email!, password);
           await reauthenticateWithCredential(user, credential);
+          console.log('Reauthentication successful');
+          
+          // Update email
+          console.log('Updating email...');
           await updateEmail(user, email);
+          console.log('Email updated successfully');
         } catch (err: any) {
+          console.error('Error during email update:', err);
           if (err.code === 'auth/wrong-password') {
             setError('Incorrect password');
           } else {
@@ -141,15 +85,12 @@ const UserProfile: React.FC = () => {
         }
       }
 
-      // Update profile name and photo URL
+      // Update profile name
+      console.log('Updating profile name...');
       await updateProfile(user, {
         displayName
       });
-
-      // Note: Phone number updates are not supported directly through updateProfile
-      // You would need to implement this through a custom backend or Firebase Cloud Functions
-      // For now, we'll just store it in the state
-      setPhoneNumber(phoneNumber);
+      console.log('Profile name updated successfully');
 
       // Force refresh the user object
       const updatedUser = auth.currentUser;
@@ -164,12 +105,14 @@ const UserProfile: React.FC = () => {
       setShowPasswordInput(false);
       setPassword('');
     } catch (err: any) {
+      console.error('Error during profile update:', err);
       setError(err.message || 'Failed to update profile');
     } finally {
       setLoading(false);
     }
   };
 
+  // Show loading state while checking authentication
   if (!user) {
     return (
       <div className="profile-container">
@@ -194,25 +137,9 @@ const UserProfile: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="profile-form">
           <div className="profile-image-section">
-            <div 
-              className="avatar-circle"
-              onClick={() => isEditing && fileInputRef.current?.click()}
-              style={{ 
-                backgroundImage: profileImage ? `url(${profileImage})` : undefined,
-                cursor: isEditing ? 'pointer' : 'default'
-              }}
-            >
-              {!profileImage && getInitials(displayName)}
+            <div className="avatar-circle">
+              {getInitials(displayName)}
             </div>
-            {isEditing && (
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleImageUpload}
-                accept="image/*"
-                style={{ display: 'none' }}
-              />
-            )}
           </div>
 
           <div className="form-group">
@@ -238,18 +165,6 @@ const UserProfile: React.FC = () => {
               placeholder="Enter your email"
               disabled={!isEditing || loading}
               required
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="phoneNumber">Phone Number</label>
-            <input
-              type="tel"
-              id="phoneNumber"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder="Enter your phone number"
-              disabled={!isEditing || loading}
             />
           </div>
 
@@ -292,10 +207,10 @@ const UserProfile: React.FC = () => {
                     setIsEditing(false);
                     setShowPasswordInput(false);
                     setPassword('');
+                    // Reset form values to current user data
                     if (user) {
                       setDisplayName(user.displayName || '');
                       setEmail(user.email || '');
-                      setPhoneNumber(user.phoneNumber || '');
                     }
                   }}
                   className="cancel-button"
@@ -306,58 +221,6 @@ const UserProfile: React.FC = () => {
               </>
             )}
           </div>
-
-          {!isEditing && (
-            <div className="delete-account-section">
-            <p>If You Want Delete Your Account ?</p>
-              <button
-                type="button"
-                onClick={() => setShowDeleteConfirm(true)}
-                className="delete-account-button"
-              >
-                Delete Account
-              </button>
-            </div>
-          )}
-
-          {showDeleteConfirm && (
-            <div className="delete-confirmation">
-              <p>Are you sure you want to delete your account? This action cannot be undone.</p>
-              <div className="form-group">
-                <label htmlFor="deletePassword">Enter your password to confirm</label>
-                <input
-                  type="password"
-                  id="deletePassword"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  disabled={loading}
-                  required
-                />
-              </div>
-              <div className="button-group">
-                <button
-                  type="button"
-                  onClick={handleDeleteAccount}
-                  disabled={loading}
-                  className="confirm-delete-button"
-                >
-                  {loading ? 'Deleting...' : 'Confirm Delete'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowDeleteConfirm(false);
-                    setPassword('');
-                  }}
-                  className="cancel-button"
-                  disabled={loading}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
         </form>
       </div>
     </div>

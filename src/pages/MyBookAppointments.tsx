@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, query, where, getDocs, Timestamp, doc, updateDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, Timestamp, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db, auth } from '../firebase/config';
 import './MyBookAppointments.css';
 
@@ -10,14 +10,14 @@ interface Appointment {
   doctorSpecialty: string;
   date: Timestamp;
   time: string;
-  status: 'pending' | 'confirmed' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
   patientName: string;
   patientEmail: string;
   patientPhone: string;
   reason: string;
 }
 
-type AppointmentStatus = 'pending' | 'confirmed' | 'cancelled';
+type AppointmentStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
 
 interface EditFormData {
   doctorName: string;
@@ -216,6 +216,20 @@ const MyBookAppointments: React.FC = () => {
     setEditForm({ doctorName: '', doctorSpecialty: '', reason: '', time: '', date: '' });
   };
 
+  const handleDelete = async (appointmentId: string) => {
+    if (window.confirm('Are you sure you want to delete this appointment?')) {
+      try {
+        const appointmentRef = doc(db, 'appointments', appointmentId);
+        await deleteDoc(appointmentRef);
+        
+        // Update local state
+        setAppointments(appointments.filter(apt => apt.id !== appointmentId));
+      } catch (err: any) {
+        setError('Failed to delete appointment: ' + err.message);
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="appointments-container">
@@ -282,14 +296,42 @@ const MyBookAppointments: React.FC = () => {
                       <button 
                         className="edit-btn"
                         onClick={() => handleEdit(appointment)}
-                        disabled={appointment.status === 'confirmed'}
+                        disabled={appointment.status === 'confirmed' || appointment.status === 'completed'}
                         style={{ 
-                          opacity: appointment.status === 'confirmed' ? 0.5 : 1,
-                          cursor: appointment.status === 'confirmed' ? 'not-allowed' : 'pointer'
+                          opacity: (appointment.status === 'confirmed' || appointment.status === 'completed') ? 0.5 : 1,
+                          cursor: (appointment.status === 'confirmed' || appointment.status === 'completed') ? 'not-allowed' : 'pointer',
+                          display: appointment.status === 'completed' ? 'none' : 'inline-flex'
                         }}
                       >
                         Edit
                       </button>
+                      {appointment.status === 'completed' && (
+                        <button 
+                          className="delete-btn"
+                          onClick={() => handleDelete(appointment.id)}
+                          style={{
+                            backgroundColor: '#fee2e2',
+                            color: '#dc2626',
+                            padding: '0.4rem 0.8rem',
+                            border: 'none',
+                            borderRadius: '4px',
+                            fontSize: '0.75rem',
+                            fontWeight: '500',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            whiteSpace: 'nowrap',
+                            minWidth: '60px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            marginLeft: '0.5rem'
+                          }}
+                        >
+                          Delete
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

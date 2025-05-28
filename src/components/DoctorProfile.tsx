@@ -147,7 +147,7 @@ const DoctorProfile: React.FC = () => {
         <div className="booking-times">
           {TIME_SLOTS.map((slot, idx) => (
             <div
-              key={slot.id}
+              key={idx}
               className={`booking-time-pill${selectedTime === idx ? ' selected' : ''}`}
               onClick={() => setSelectedTime(idx)}
             >
